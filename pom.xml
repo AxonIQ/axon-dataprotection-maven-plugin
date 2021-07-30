@@ -69,7 +69,7 @@
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
             <!-- 0.9.12 has a bug -->
-            <version>0.9.11</version>
+            <version>0.9.12</version>
         </dependency>
         <!-- axon annotations - needed because of the @Revision annotation -->
         <dependency>
