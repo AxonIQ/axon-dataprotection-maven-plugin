@@ -11,12 +11,39 @@
 
     <name>axon-dataprotection-maven-plugin</name>
 
-
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <axon.version>4.5.3</axon.version>
     </properties>
+
+    <scm>
+        <connection>scm:git:https://github.com/AxonIQ/axon-dataprotection-maven-plugin.git</connection>
+        <developerConnection>scm:git:https://github.com/AxonIQ/axon-dataprotection-maven-plugin.git
+        </developerConnection>
+        <url>https://github.com/AxonIQ/axon-dataprotection-maven-plugin</url>
+        <tag>master</tag>
+    </scm>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>axoniq-nexus</id>
+            <url>https://nexus.dev.axoniq.net/repository/products-snapshots</url>
+            <uniqueVersion>false</uniqueVersion>
+        </snapshotRepository>
+        <repository>
+            <id>axoniq-nexus</id>
+            <url>https://nexus.dev.axoniq.net/repository/products-releases</url>
+            <uniqueVersion>true</uniqueVersion>
+        </repository>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>axoniq-nexus</id>
+            <url>https://nexus.dev.axoniq.net/repository/products/</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
@@ -74,5 +101,10 @@
             </plugin>
         </plugins>
     </build>
+
+    <organization>
+        <name>AxonIQ BV</name>
+        <url>https://axoniq.io</url>
+    </organization>
 
 </project>
