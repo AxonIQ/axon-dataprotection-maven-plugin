@@ -16,6 +16,9 @@ jobs:
         with:
           distribution: 'adopt'
           java-version: 8
+          server-id: axoniq-nexus
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
 
       - name: Cache .m2
         uses: actions/cache@v2.1.6
@@ -27,3 +30,6 @@ jobs:
 
       - name: Build and verify
         run: mvn -B -U clean verify
+        env:
+          MAVEN_USERNAME: ${{ secrets.DEVBOT_GITHUB_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.DEVBOT_GITHUB_TOKEN }}
