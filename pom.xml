@@ -1,4 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2021. AxonIQ
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -14,7 +30,18 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <!-- Axon -->
         <axon.version>4.5.3</axon.version>
+        <dataprotection-config-api.version>1.0-SNAPSHOT</dataprotection-config-api.version>
+        <!-- Maven Plugin -->
+        <maven-dependency-plugin.version>3.2.0</maven-dependency-plugin.version>
+        <maven-plugin-plugin.version>3.6.1</maven-plugin-plugin.version>
+        <maven-plugin-annotations.version>3.6.1</maven-plugin-annotations.version>
+        <!-- Reflection -->
+        <reflections.version>0.9.12</reflections.version>
+        <classmate.version>1.5.1</classmate.version>
+        <!-- Json -->
+        <jackson-databind.version>2.12.4</jackson-databind.version>
     </properties>
 
     <scm>
@@ -49,27 +76,26 @@
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-dependency-plugin</artifactId>
-            <version>3.2.0</version>
+            <version>${maven-dependency-plugin.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.plugin-tools</groupId>
             <artifactId>maven-plugin-annotations</artifactId>
-            <version>3.6.1</version>
+            <version>${maven-plugin-annotations.version}</version>
             <scope>provided</scope>
         </dependency>
         <!-- shared values like annotations and config classes -->
         <dependency>
             <groupId>io.axoniq</groupId>
             <artifactId>axon-dataprotection-config-api</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${dataprotection-config-api.version}</version>
         </dependency>
         <!-- reflection utils -->
         <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
-            <!-- 0.9.12 has a bug -->
-            <version>0.9.12</version>
+            <version>${reflections.version}</version>
         </dependency>
         <!-- axon annotations - needed because of the @Revision annotation -->
         <dependency>
@@ -81,13 +107,13 @@
         <dependency>
             <groupId>com.fasterxml</groupId>
             <artifactId>classmate</artifactId>
-            <version>1.5.1</version>
+            <version>${classmate.version}</version>
         </dependency>
         <!-- needed to output a proper json -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.12.4</version>
+            <version>${jackson-databind.version}</version>
         </dependency>
 
     </dependencies>
@@ -97,7 +123,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
-                <version>3.6.1</version>
+                <version>${maven-plugin-plugin.version}</version>
             </plugin>
         </plugins>
     </build>
