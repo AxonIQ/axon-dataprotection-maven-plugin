@@ -20,6 +20,10 @@ import io.axoniq.plugin.data.protection.annotation.SensitiveData;
 import org.axonframework.serialization.Revision;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Utils around Java Reflection. It offers several methods for checking types for {@link Class} and {@link Field}.
@@ -105,5 +109,34 @@ public class ReflectionUtils {
      */
     public static String extractName(Field field) {
         return field.getName();
+    }
+
+    public static List<Field> getAllDeclaredFields(Class<?> clazz) {
+        if (clazz == null) { return new ArrayList<>(); }
+
+        List<Class<?>> parents = getAllParents(clazz);
+        List<Field> fields = parents.stream()
+                                     .flatMap(c -> Arrays.stream(c.getDeclaredFields()))
+                                     .collect(Collectors.toList());
+        fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
+        return fields;
+    }
+
+    public static List<Class<?>> getAllParents(Class<?> clazz) {
+        if (clazz == null) { return new ArrayList<>(); }
+        ArrayList<Class<?>> classes = new ArrayList<>();
+
+        Class<?> superclass = clazz.getSuperclass();
+
+        if(superclass != null) {
+            classes.add(superclass);
+            classes.addAll(getAllParents(superclass));
+        }
+
+        List<Class<?>> interfaces = Arrays.asList(clazz.getInterfaces());
+        classes.addAll(interfaces);
+        interfaces.forEach(i ->  classes.addAll(getAllParents(i)));
+
+        return classes;
     }
 }
