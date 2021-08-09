@@ -111,6 +111,12 @@ public class ReflectionUtils {
         return field.getName();
     }
 
+    /**
+     * Get all the declared fields on the class and of all super classes or interfaces that the class implements. This will scan the whole
+     * inheritance tree. Redeclare fields will produce semi-duplicates.
+     * @param clazz The class to inspect the fields of.
+     * @return The list of all fields, including fields of superclasses and interfaces
+     */
     public static List<Field> getAllDeclaredFields(Class<?> clazz) {
         if (clazz == null) { return new ArrayList<>(); }
 
@@ -122,6 +128,11 @@ public class ReflectionUtils {
         return fields;
     }
 
+    /**
+     * Get all the super classes or interfaces of the given class. This will scan the whole inheritance tree
+     * @param clazz The class to inspect for super classes and interfaces
+     * @return The list of all super classes and interfaces
+     */
     public static List<Class<?>> getAllParents(Class<?> clazz) {
         if (clazz == null) { return new ArrayList<>(); }
         ArrayList<Class<?>> classes = new ArrayList<>();
