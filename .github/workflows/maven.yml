@@ -1,6 +1,6 @@
 name: Axon Data Protection Maven Plugin
 
-on: [push, pull_request]
+on: [ push, pull_request ]
 
 jobs:
   build:
@@ -33,3 +33,23 @@ jobs:
         env:
           MAVEN_USERNAME: ${{ secrets.DEVBOT_GITHUB_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.DEVBOT_GITHUB_TOKEN }}
+
+      - name: Notify success to Slack
+        if: success()
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        uses: voxmedia/github-action-slack-notify-build@v1.1.2
+        with:
+          channel_id: CAGSEC92A
+          status: SUCCESS
+          color: good
+
+      - name: Notify failure to Slack
+        if: failure()
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        uses: voxmedia/github-action-slack-notify-build@v1.1.2
+        with:
+          channel_id: CAGSEC92A
+          status: FAILED
+          color: danger
