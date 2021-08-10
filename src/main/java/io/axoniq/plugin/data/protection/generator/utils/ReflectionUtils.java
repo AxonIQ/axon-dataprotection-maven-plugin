@@ -24,6 +24,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.Period;
+import java.time.ZonedDateTime;
+import java.util.Date;
 
 /**
  * Utils around Java Reflection. It offers several methods for checking types for {@link Class} and {@link Field}.
@@ -36,31 +47,72 @@ public class ReflectionUtils {
     private static final String EMPTY_STRING = "";
 
     /**
+     * Check if it should go deeper checking for extra fields inside the given class. This is not true for primitives,
+     * wrappers and common java types.
+     *
+     * @param clazz The class which you want to check.
+     * @return True or false, depending on the check.
+     */
+    public static boolean shouldGoDeeper(Class<?> clazz) {
+        return !isPrimitiveOrWrapper(clazz)
+                && !isCommonJavaType(clazz)
+                && !isDateTimeJavaType(clazz);
+    }
+
+    /**
+     * Check if it should go deeper checking for extra fields inside the type of the given field. This is not true for
+     * primitives, wrappers and common java types.
+     *
+     * @param field The field which you want to check.
+     * @return True or false, depending on the check.
+     */
+    public static boolean shouldGoDeeper(Field field) {
+        return !isPrimitiveOrWrapper(field.getType())
+                && !isCommonJavaType(field.getType())
+                && !isDateTimeJavaType(field.getType());
+    }
+
+    /**
      * Used to check if the given class is primitive, wrapper or a String. Just delegate the check to the {@link
      * ClassUtils}.
      *
      * @param clazz The class which you want to check.
      * @return True or false, depending on the check.
      */
-    public static boolean isPrimitiveOrWrapperOrString(Class<?> clazz) {
+    private static boolean isPrimitiveOrWrapper(Class<?> clazz) {
         return ClassUtils.isPrimitiveOrWrapper(clazz)
                 || ClassUtils.isPrimitiveArray(clazz)
-                || ClassUtils.isPrimitiveWrapperArray(clazz)
-                || ClassUtils.isAssignable(String.class, clazz);
+                || ClassUtils.isPrimitiveWrapperArray(clazz);
     }
 
     /**
-     * Used to check if the given field is primitive, wrapper or a String. Just delegate the check to the {@link
-     * ClassUtils}.
+     * Check for common Java Types, for example String, BigDecimal and BigInteger.
      *
-     * @param field The field which you want to check.
+     * @param clazz The class which you want to check.
      * @return True or false, depending on the check.
      */
-    public static boolean isPrimitiveOrWrapperOrString(Field field) {
-        return ClassUtils.isPrimitiveOrWrapper(field.getType())
-                || ClassUtils.isPrimitiveArray(field.getType())
-                || ClassUtils.isPrimitiveWrapperArray(field.getType())
-                || ClassUtils.isAssignable(String.class, field.getType());
+    private static boolean isCommonJavaType(Class<?> clazz) {
+        return ClassUtils.isAssignable(String.class, clazz)
+                || ClassUtils.isAssignable(BigDecimal.class, clazz)
+                || ClassUtils.isAssignable(BigInteger.class, clazz);
+    }
+
+    /**
+     * Check for common Date Time Java Types, for example Date, LocalDate, LocalTime, etc.
+     *
+     * @param clazz The class which you want to check.
+     * @return True or false, depending on the check.
+     */
+    private static boolean isDateTimeJavaType(Class<?> clazz) {
+        return ClassUtils.isAssignable(Date.class, clazz)
+                || ClassUtils.isAssignable(LocalDate.class, clazz)
+                || ClassUtils.isAssignable(LocalTime.class, clazz)
+                || ClassUtils.isAssignable(LocalDateTime.class, clazz)
+                || ClassUtils.isAssignable(OffsetDateTime.class, clazz)
+                || ClassUtils.isAssignable(ZonedDateTime.class, clazz)
+                || ClassUtils.isAssignable(Instant.class, clazz)
+                || ClassUtils.isAssignable(Period.class, clazz)
+                || ClassUtils.isAssignable(Duration.class, clazz);
     }
 
     /**

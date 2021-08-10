@@ -63,7 +63,7 @@ public class MetamodelGenerator {
         Set<Class<?>> annotatedClasses = reflections.getTypesAnnotatedWith(PII.class);
         // all PII annotated class
         annotatedClasses.stream()
-                        .map(this::createDataProtectionConfig)
+                        .map(this::generateMetamodel)
                         .forEach(dataProtectionConfigs::add);
 
         // TODO: getFieldsAnnotatedWith can be used to validate if we got the right number of config entries
@@ -76,7 +76,7 @@ public class MetamodelGenerator {
      * @param piiAnnotatedClass A class which is annotated with {@link PII}.
      * @return A new instance of a {@link DataProtectionConfig}.
      */
-    private DataProtectionConfig createDataProtectionConfig(Class<?> piiAnnotatedClass) {
+    public DataProtectionConfig generateMetamodel(Class<?> piiAnnotatedClass) {
         List<SensitiveDataConfig> sensitiveDataList = new ArrayList<>();
         String type = ReflectionUtils.extractName(piiAnnotatedClass);
         String revision = ReflectionUtils.extractRevision(piiAnnotatedClass);
@@ -126,7 +126,7 @@ public class MetamodelGenerator {
         // if it's not a primitive type, go deeper recursively
         piiClassFields
                 .forEach(field -> {
-                    if (ReflectionUtils.isPrimitiveOrWrapperOrString(field)) {
+                    if (!ReflectionUtils.shouldGoDeeper(field)) {
                         return;
                     }
                     checkType(field, sensitiveDataList, buildPath(path, ReflectionUtils.extractName(field)));
@@ -157,7 +157,7 @@ public class MetamodelGenerator {
         // TODO: check List
         if (!type.getTypeParameters().isEmpty()) {
             type.getTypeParameters().stream()
-                .filter(tp -> !ReflectionUtils.isPrimitiveOrWrapperOrString(tp.getErasedType()))
+                .filter(tp -> ReflectionUtils.shouldGoDeeper(tp.getErasedType()))
                 .forEach(tp -> extractSensitiveData(ReflectionUtils.getAllDeclaredFields(tp.getErasedType()), sensitiveDataList, path));
         } else {
             extractSensitiveData(ReflectionUtils.getAllDeclaredFields(type.getErasedType()), sensitiveDataList, path);
