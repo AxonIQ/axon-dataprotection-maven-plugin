@@ -51,6 +51,11 @@ public class MetamodelGenerator {
     private static final String PATH_DIVIDER = ".";
 
     /**
+     * Represents every element of a given list.
+     */
+    private static final String PATH_LIST_ELEMENTS = "[*]";
+
+    /**
      * Start the generation of the metamodel based on the given {@param basePackage}.
      *
      * @param basePackage The base package for look up for annotated classes.
@@ -116,15 +121,17 @@ public class MetamodelGenerator {
     private void extractSensitiveData(Field[] piiClassFields,
                                       List<SensitiveDataConfig> sensitiveDataList,
                                       String path) {
-        // direct annotated fields
+        // direct annotated fields (ignoring the SubjectId annotated field)
         Arrays.stream(piiClassFields)
               .filter(f -> AnnotationUtils.isAnnotationPresent(f, SensitiveData.class))
+              .filter(f -> !AnnotationUtils.isAnnotationPresent(f, SubjectId.class))
               .forEach(f -> sensitiveDataList.add(
                       new SensitiveDataConfig(buildPath(path, ReflectionUtils.extractName(f)),
                                               ReflectionUtils.extractReplacementValue(f))
               ));
-        // if it's not a primitive type, go deeper recursively
+        // if it's not a primitive type, go deeper recursively (ignoring the SubjectId annotated field)
         Arrays.stream(piiClassFields)
+              .filter(f -> !AnnotationUtils.isAnnotationPresent(f, SubjectId.class))
               .forEach(field -> {
                   if (!ReflectionUtils.shouldGoDeeper(field)) {
                       return;
@@ -134,9 +141,9 @@ public class MetamodelGenerator {
     }
 
     /**
-     * Check the type of the given {@link Field} to decide if it's a form of Container or not. In case it's a container,
-     * the method calls {@link MetamodelGenerator#extractSensitiveData(Field[], List, String)} on its type. If not, it
-     * calls the method on its {@link Field}s.
+     * Check the type of the given {@link Field} to decide if it's a form of Container, Array or not. In case it's a
+     * Container or an Array, the method calls {@link MetamodelGenerator#extractSensitiveData(Field[], List, String)} on
+     * its type. If not, it calls the method on its {@link Field}s.
      *
      * @param field             The {@link Field} we are going to perform the type check.
      * @param sensitiveDataList The container for all the {@link SensitiveDataConfig}. Needed because this is meant to
@@ -150,17 +157,17 @@ public class MetamodelGenerator {
         ResolvedType type = resolver.resolve(field.getGenericType());
 
         // if it has parameters, it should be a form of Collection
-        // TODO: really check if it's a collection/optional for example
-        // TODO: we need to append an [*] for list (map later)
-        // TODO: check Map
-        // TODO: check Set
-        // TODO: check Optional
-        // TODO: check Array
-        // TODO: check List
+        // TODO: check Map as it should only look into the value type (not the key) for @SensitiveData
         if (!type.getTypeParameters().isEmpty()) {
             type.getTypeParameters().stream()
                 .filter(tp -> ReflectionUtils.shouldGoDeeper(tp.getErasedType()))
-                .forEach(tp -> extractSensitiveData(tp.getErasedType().getDeclaredFields(), sensitiveDataList, path));
+                .forEach(tp -> extractSensitiveData(tp.getErasedType().getDeclaredFields(),
+                                                    sensitiveDataList,
+                                                    buildCollectionPath(path)));
+        } else if (type.isArray()) {
+            extractSensitiveData(type.getArrayElementType().getErasedType().getDeclaredFields(),
+                                 sensitiveDataList,
+                                 buildCollectionPath(path));
         } else {
             extractSensitiveData(type.getErasedType().getDeclaredFields(), sensitiveDataList, path);
         }
@@ -175,5 +182,15 @@ public class MetamodelGenerator {
      */
     private String buildPath(String previousPath, String path) {
         return previousPath + PATH_DIVIDER + path;
+    }
+
+    /**
+     * Build a path based on the previous path and the current one.
+     *
+     * @param path Current path on the json
+     * @return A new path built based on the parameters divided by the {@link MetamodelGenerator#PATH_DIVIDER}
+     */
+    private String buildCollectionPath(String path) {
+        return path + PATH_LIST_ELEMENTS;
     }
 }
