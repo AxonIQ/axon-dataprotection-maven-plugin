@@ -33,7 +33,7 @@ class ReflectionUtilsTest {
     @Test
     void getAllDeclaredFieldsShouldGetAllFieldsIncludingParentsFields() {
         List<Field> fields = ReflectionUtils.getAllDeclaredFields(ShallowJavaEvent.class);
-        Assertions.assertEquals(3, fields.size());
+        Assertions.assertEquals(4, fields.size());
     }
 
     @Test
