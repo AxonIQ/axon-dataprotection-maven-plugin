@@ -31,6 +31,7 @@ import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.List;
 
 /**
  * Starting point for the Axon Data Protection Plugin.
@@ -55,9 +56,8 @@ public class AxonDataProtectionMojo extends AbstractMojo {
      * This property specify in which packages the plugin should look for the PII Annotation to start generating the
      * metamodel.
      */
-    // TODO: should it be an array and support multiple packages to be scanned?
-    @Parameter(property = "generate.basePackage", required = true)
-    private String basePackage;
+    @Parameter(property = "packages", required = true)
+    private List<String> packages;
 
     /**
      * Location of the result config.
@@ -74,11 +74,11 @@ public class AxonDataProtectionMojo extends AbstractMojo {
      * This is the method called by maven to start the plugin.
      */
     public void execute() throws MojoExecutionException {
-        getLog().info(String.format("Starting metamodel generation for %s", basePackage));
+        getLog().info(String.format("Starting metamodel generation for %s", packages));
         addProjectClassesToPluginClasspath();
-        MetamodelGenerator generator = new MetamodelGenerator();
+        MetamodelGenerator generator = new MetamodelGenerator(getLog());
         try {
-            DataProtectionConfigList config = generator.generateMetamodel(basePackage);
+            DataProtectionConfigList config = generator.generateMetamodel(packages);
             writeOutput(config);
         } catch (Exception e) {
             getLog().error("Metamodel generation failed with: ", e);
