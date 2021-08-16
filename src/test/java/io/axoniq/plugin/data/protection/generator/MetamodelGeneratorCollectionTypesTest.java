@@ -28,7 +28,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 
 class MetamodelGeneratorCollectionTypesTest {
 
@@ -99,19 +98,6 @@ class MetamodelGeneratorCollectionTypesTest {
         Assertions.assertEquals(expected, result);
     }
 
-    @Test
-    void streamTest() {
-        DataProtectionConfig expected = new DataProtectionConfig(
-                "io.axoniq.plugin.data.protection.generator.MetamodelGeneratorCollectionTypesTest$StreamTest",
-                "",
-                new SubjectIdConfig("$.subjectId"),
-                new SensitiveDataConfig("$.sensitiveData", "stream"));
-
-        DataProtectionConfig result = metamodelGenerator.generateMetamodel(StreamTest.class);
-
-        Assertions.assertEquals(expected, result);
-    }
-
     @PII
     static class ListTest {
 
@@ -160,15 +146,5 @@ class MetamodelGeneratorCollectionTypesTest {
 
         @SensitiveData(replacementValue = "array")
         String[] sensitiveData;
-    }
-
-    @PII
-    static class StreamTest {
-
-        @SubjectId
-        Stream<String> subjectId;
-
-        @SensitiveData(replacementValue = "stream")
-        Stream<String> sensitiveData;
     }
 }
