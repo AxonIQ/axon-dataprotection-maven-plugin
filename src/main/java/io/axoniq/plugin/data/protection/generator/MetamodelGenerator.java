@@ -130,7 +130,7 @@ public class MetamodelGenerator {
                                               ReflectionUtils.extractReplacementValue(f))
               ));
         // if it's not a primitive type, go deeper recursively (ignoring the SubjectId annotated field)
-        piiClassFields
+        piiClassFields.stream()
               .filter(f -> !AnnotationUtils.isAnnotationPresent(f, SubjectId.class))
               .forEach(field -> {
                   if (!ReflectionUtils.shouldGoDeeper(field)) {
