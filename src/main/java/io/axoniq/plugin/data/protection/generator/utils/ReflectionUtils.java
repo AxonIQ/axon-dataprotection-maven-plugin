@@ -20,6 +20,10 @@ import io.axoniq.plugin.data.protection.annotation.SensitiveData;
 import org.axonframework.serialization.Revision;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Duration;
@@ -157,5 +161,45 @@ public class ReflectionUtils {
      */
     public static String extractName(Field field) {
         return field.getName();
+    }
+
+    /**
+     * Get all the declared fields on the class and of all super classes or interfaces that the class implements. This will scan the whole
+     * inheritance tree. Redeclared fields will produce semi-duplicates.
+     * @param clazz The class to inspect the fields of.
+     * @return The list of all fields, including fields of superclasses and interfaces
+     */
+    public static List<Field> getAllDeclaredFields(Class<?> clazz) {
+        if (clazz == null) { return new ArrayList<>(); }
+
+        List<Class<?>> parents = getAllParents(clazz);
+        List<Field> fields = parents.stream()
+                                     .flatMap(c -> Arrays.stream(c.getDeclaredFields()))
+                                     .collect(Collectors.toList());
+        fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
+        return fields;
+    }
+
+    /**
+     * Get all the super classes or interfaces of the given class. This will scan the whole inheritance tree
+     * @param clazz The class to inspect for super classes and interfaces
+     * @return The list of all super classes and interfaces
+     */
+    public static List<Class<?>> getAllParents(Class<?> clazz) {
+        if (clazz == null) { return new ArrayList<>(); }
+        ArrayList<Class<?>> classes = new ArrayList<>();
+
+        Class<?> superclass = clazz.getSuperclass();
+
+        if(superclass != null) {
+            classes.add(superclass);
+            classes.addAll(getAllParents(superclass));
+        }
+
+        List<Class<?>> interfaces = Arrays.asList(clazz.getInterfaces());
+        classes.addAll(interfaces);
+        interfaces.forEach(i ->  classes.addAll(getAllParents(i)));
+
+        return classes;
     }
 }
