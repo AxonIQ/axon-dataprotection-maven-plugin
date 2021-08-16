@@ -164,7 +164,7 @@ public class MetamodelGenerator {
                 .forEach(tp -> extractSensitiveData(tp.getErasedType().getDeclaredFields(),
                                                     sensitiveDataList,
                                                     buildCollectionPath(path)));
-        } else if (type.isArray()) {
+        } else if (type.isArray() && ReflectionUtils.shouldGoDeeper(type.getArrayElementType().getErasedType())) {
             extractSensitiveData(type.getArrayElementType().getErasedType().getDeclaredFields(),
                                  sensitiveDataList,
                                  buildCollectionPath(path));
