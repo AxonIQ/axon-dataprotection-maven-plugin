@@ -165,7 +165,7 @@ public class ReflectionUtils {
 
     /**
      * Get all the declared fields on the class and of all super classes or interfaces that the class implements. This will scan the whole
-     * inheritance tree. Redeclare fields will produce semi-duplicates.
+     * inheritance tree. Redeclared fields will produce semi-duplicates.
      * @param clazz The class to inspect the fields of.
      * @return The list of all fields, including fields of superclasses and interfaces
      */
