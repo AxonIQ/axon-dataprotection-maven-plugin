@@ -25,14 +25,15 @@ import io.axoniq.plugin.data.protection.config.DataProtectionConfig;
 import io.axoniq.plugin.data.protection.config.DataProtectionConfigList;
 import io.axoniq.plugin.data.protection.config.SensitiveDataConfig;
 import io.axoniq.plugin.data.protection.config.SubjectIdConfig;
+import io.axoniq.plugin.data.protection.generator.errors.NoSubjectIdException;
 import io.axoniq.plugin.data.protection.generator.utils.AnnotationUtils;
 import io.axoniq.plugin.data.protection.generator.utils.ReflectionUtils;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -85,44 +86,43 @@ public class MetamodelGenerator {
         String type = ReflectionUtils.extractName(piiAnnotatedClass);
         String revision = ReflectionUtils.extractRevision(piiAnnotatedClass);
 
-        Field[] piiClassFields = piiAnnotatedClass.getDeclaredFields();
-        SubjectIdConfig subjectId = extractSubjectId(piiClassFields);
+        List<Field> piiClassFields = ReflectionUtils.getAllDeclaredFields(piiAnnotatedClass);
+        SubjectIdConfig subjectId = extractSubjectId(piiClassFields)
+                .orElseThrow(() -> new NoSubjectIdException(piiAnnotatedClass));
 
         extractSensitiveData(piiClassFields, sensitiveDataList, PATH_PREFIX);
-
         return new DataProtectionConfig(type, revision, subjectId, sensitiveDataList);
     }
 
     /**
-     * Create a {@link SubjectIdConfig} instance based on a list of {@link Field}s. The first field annotated with
-     * {@link SubjectId} is the one which the value will be taken.
+     * Create a {@link SubjectIdConfig} instance based on a list of {@link Field}s. The first field annotated with {@link SubjectId} is the
+     * one which the value will be taken.
      *
      * @param piiClassFields List of fields from a {@link Class}.
      * @return A new instance of a {@link SubjectIdConfig}.
      */
-    private SubjectIdConfig extractSubjectId(Field[] piiClassFields) {
-        Field subjectId = Arrays.stream(piiClassFields)
-                                .filter(field -> AnnotationUtils.isAnnotationPresent(field, SubjectId.class))
-                                .findFirst()
-                                .orElse(null); // TODO: can it be null? what should we do?
-        return new SubjectIdConfig(buildPath(PATH_PREFIX, ReflectionUtils.extractName(subjectId)));
+    private Optional<SubjectIdConfig> extractSubjectId(List<Field> piiClassFields) {
+        return piiClassFields.stream()
+                             .filter(field -> AnnotationUtils.isAnnotationPresent(field, SubjectId.class))
+                             .findFirst()
+                             .map(subjectIdField -> new SubjectIdConfig(buildPath(PATH_PREFIX,
+                                                                                  ReflectionUtils.extractName(subjectIdField))));
     }
 
     /**
-     * Create one or more instances of a {@link SensitiveDataConfig} which are added to the {@param sensitiveDataList}.
-     * This method is called recursively.
+     * Create one or more instances of a {@link SensitiveDataConfig} which are added to the {@param sensitiveDataList}. This method is
+     * called recursively.
      *
      * @param piiClassFields    A list of {@link Field}s that may contains {@link SensitiveData} annotated fields.
-     * @param sensitiveDataList A list which will hold all the {@link SensitiveDataConfig} created during the calls.
-     *                          Needed because this is meant to be a recursive method.
-     * @param path              The path from the previous field. Needed because this is meant to be a recursive
-     *                          method.
+     * @param sensitiveDataList A list which will hold all the {@link SensitiveDataConfig} created during the calls. Needed because this is
+     *                          meant to be a recursive method.
+     * @param path              The path from the previous field. Needed because this is meant to be a recursive method.
      */
-    private void extractSensitiveData(Field[] piiClassFields,
+    private void extractSensitiveData(List<Field> piiClassFields,
                                       List<SensitiveDataConfig> sensitiveDataList,
                                       String path) {
         // direct annotated fields (ignoring the SubjectId annotated field)
-        Arrays.stream(piiClassFields)
+        piiClassFields.stream()
               .filter(f -> AnnotationUtils.isAnnotationPresent(f, SensitiveData.class))
               .filter(f -> !AnnotationUtils.isAnnotationPresent(f, SubjectId.class))
               .forEach(f -> sensitiveDataList.add(
@@ -130,7 +130,7 @@ public class MetamodelGenerator {
                                               ReflectionUtils.extractReplacementValue(f))
               ));
         // if it's not a primitive type, go deeper recursively (ignoring the SubjectId annotated field)
-        Arrays.stream(piiClassFields)
+        piiClassFields
               .filter(f -> !AnnotationUtils.isAnnotationPresent(f, SubjectId.class))
               .forEach(field -> {
                   if (!ReflectionUtils.shouldGoDeeper(field)) {
@@ -146,10 +146,9 @@ public class MetamodelGenerator {
      * its type. If not, it calls the method on its {@link Field}s.
      *
      * @param field             The {@link Field} we are going to perform the type check.
-     * @param sensitiveDataList The container for all the {@link SensitiveDataConfig}. Needed because this is meant to
-     *                          be a recursive method.
-     * @param path              The path from the previous field. Needed because this is meant to be a recursive
+     * @param sensitiveDataList The container for all the {@link SensitiveDataConfig}. Needed because this is meant to be a recursive
      *                          method.
+     * @param path              The path from the previous field. Needed because this is meant to be a recursive method.
      */
     private void checkType(Field field, List<SensitiveDataConfig> sensitiveDataList, String path) {
         // TODO: can we replace the following 2 lines to avoid another dependency?
@@ -161,15 +160,15 @@ public class MetamodelGenerator {
         if (!type.getTypeParameters().isEmpty()) {
             type.getTypeParameters().stream()
                 .filter(tp -> ReflectionUtils.shouldGoDeeper(tp.getErasedType()))
-                .forEach(tp -> extractSensitiveData(tp.getErasedType().getDeclaredFields(),
+                .forEach(tp -> extractSensitiveData(ReflectionUtils.getAllDeclaredFields(tp.getErasedType()),
                                                     sensitiveDataList,
                                                     buildCollectionPath(path)));
         } else if (type.isArray() && ReflectionUtils.shouldGoDeeper(type.getArrayElementType().getErasedType())) {
-            extractSensitiveData(type.getArrayElementType().getErasedType().getDeclaredFields(),
+            extractSensitiveData(ReflectionUtils.getAllDeclaredFields(type.getArrayElementType().getErasedType()),
                                  sensitiveDataList,
                                  buildCollectionPath(path));
         } else {
-            extractSensitiveData(type.getErasedType().getDeclaredFields(), sensitiveDataList, path);
+            extractSensitiveData(ReflectionUtils.getAllDeclaredFields(type.getErasedType()), sensitiveDataList, path);
         }
     }
 

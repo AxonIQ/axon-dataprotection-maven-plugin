@@ -77,8 +77,13 @@ public class AxonDataProtectionMojo extends AbstractMojo {
         getLog().info(String.format("Starting metamodel generation for %s", basePackage));
         addProjectClassesToPluginClasspath();
         MetamodelGenerator generator = new MetamodelGenerator();
-        DataProtectionConfigList config = generator.generateMetamodel(basePackage);
-        writeOutput(config);
+        try {
+            DataProtectionConfigList config = generator.generateMetamodel(basePackage);
+            writeOutput(config);
+        } catch (Exception e) {
+            getLog().error("Metamodel generation failed with: ", e);
+            throw e;
+        }
     }
 
     /**
