@@ -17,16 +17,16 @@
 package io.axoniq.plugin.data.protection.generator.errors;
 
 /**
- * Exception to indicate that a given Class do not contain field annotated with a {@link
- * io.axoniq.plugin.data.protection.annotation.SubjectId} on it.
+ * Exception to indicate that a given Class do not contain a {@link io.axoniq.plugin.data.protection.annotation.PII}
+ * annotation on it.
  */
-public class NoSubjectIdException extends RuntimeException {
+public class NoPIIAnnotationException extends RuntimeException {
 
-    public NoSubjectIdException(String message) {
+    public NoPIIAnnotationException(String message) {
         super(message);
     }
 
-    public NoSubjectIdException(Class<?> clazz) {
-        super("No SubjectId annotated field found in [" + clazz + "] or one of it's parents");
+    public NoPIIAnnotationException(Class<?> clazz) {
+        super("No PII annotated class found in [" + clazz + "]");
     }
 }

@@ -25,6 +25,7 @@ import io.axoniq.plugin.data.protection.config.DataProtectionConfig;
 import io.axoniq.plugin.data.protection.config.DataProtectionConfigList;
 import io.axoniq.plugin.data.protection.config.SensitiveDataConfig;
 import io.axoniq.plugin.data.protection.config.SubjectIdConfig;
+import io.axoniq.plugin.data.protection.generator.errors.NoPIIAnnotationException;
 import io.axoniq.plugin.data.protection.generator.errors.NoSubjectIdException;
 import io.axoniq.plugin.data.protection.generator.utils.AnnotationUtils;
 import io.axoniq.plugin.data.protection.generator.utils.ReflectionUtils;
@@ -36,6 +37,7 @@ import org.reflections.Reflections;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -55,9 +57,14 @@ public class MetamodelGenerator {
     private static final String PATH_DIVIDER = ".";
 
     /**
-     * Represents every element of a given list.
+     * Represents every element of a given List.
      */
     private static final String PATH_LIST_ELEMENTS = "[*]";
+
+    /**
+     * Represents every element of a given Map entry.
+     */
+    private static final String PATH_MAP_ELEMENTS = "*";
 
     private final Log log;
 
@@ -119,6 +126,9 @@ public class MetamodelGenerator {
      * @return A new instance of a {@link DataProtectionConfig}.
      */
     public DataProtectionConfig generateMetamodel(Class<?> piiAnnotatedClass) {
+        if (!piiAnnotatedClass.isAnnotationPresent(PII.class)) {
+            throw new NoPIIAnnotationException(piiAnnotatedClass);
+        }
         log.debug(String.format("Scanning class [%s]", ReflectionUtils.extractName(piiAnnotatedClass)));
         List<SensitiveDataConfig> sensitiveDataList = new ArrayList<>();
         String type = ReflectionUtils.extractName(piiAnnotatedClass);
@@ -172,17 +182,15 @@ public class MetamodelGenerator {
         // if it's not a primitive type, go deeper recursively (ignoring the SubjectId annotated field)
         piiClassFields.stream()
                       .filter(f -> !AnnotationUtils.isAnnotationPresent(f, SubjectId.class))
-                      .forEach(field -> {
-                          if (!ReflectionUtils.shouldGoDeeper(field)) {
-                              return;
-                          }
-                          checkType(field, sensitiveDataList, buildPath(path, ReflectionUtils.extractName(field)));
-                      });
+                      .filter(ReflectionUtils::shouldGoDeeper)
+                      .forEach(field -> checkType(field,
+                                                  sensitiveDataList,
+                                                  buildPath(path, ReflectionUtils.extractName(field))));
     }
 
     /**
      * Check the type of the given {@link Field} to decide if it's a form of Container, Array or not. In case it's a
-     * Container or an Array, the method calls {@link MetamodelGenerator#extractSensitiveData(Field[], List, String)} on
+     * Container or an Array, the method calls {@link MetamodelGenerator#extractSensitiveData(List, List, String)} on
      * its type. If not, it calls the method on its {@link Field}s.
      *
      * @param field             The {@link Field} we are going to perform the type check.
@@ -196,21 +204,58 @@ public class MetamodelGenerator {
         TypeResolver resolver = new TypeResolver();
         ResolvedType type = resolver.resolve(field.getGenericType());
 
-        // if it has parameters, it should be a form of Collection
-        // TODO: check Map as it should only look into the value type (not the key) for @SensitiveData
-        if (!type.getTypeParameters().isEmpty()) {
-            type.getTypeParameters().stream()
+        if (isMap(type)) {
+            // only Value of the Map, ignore Key
+            extractSensitiveData(ReflectionUtils.getAllDeclaredFields(type.getTypeParameters().get(1).getErasedType()),
+                                 sensitiveDataList,
+                                 buildMapPath(path));
+        } else if (isArray(type)) {
+            extractSensitiveData(ReflectionUtils.getAllDeclaredFields(type.getArrayElementType().getErasedType()),
+                                 sensitiveDataList,
+                                 buildCollectionPath(path));
+        } else if (hasTypeParameters(type)) {
+            type.getTypeParameters()
+                .stream()
                 .filter(tp -> ReflectionUtils.shouldGoDeeper(tp.getErasedType()))
                 .forEach(tp -> extractSensitiveData(ReflectionUtils.getAllDeclaredFields(tp.getErasedType()),
                                                     sensitiveDataList,
                                                     buildCollectionPath(path)));
-        } else if (type.isArray() && ReflectionUtils.shouldGoDeeper(type.getArrayElementType().getErasedType())) {
-            extractSensitiveData(ReflectionUtils.getAllDeclaredFields(type.getArrayElementType().getErasedType()),
-                                 sensitiveDataList,
-                                 buildCollectionPath(path));
         } else {
             extractSensitiveData(ReflectionUtils.getAllDeclaredFields(type.getErasedType()), sensitiveDataList, path);
         }
+    }
+
+    /**
+     * Check if the given type has Type Parameters.
+     *
+     * @param type Type which will be used to check if it has Type Parameters.
+     * @return True or false, depending on the check.
+     */
+    private boolean hasTypeParameters(ResolvedType type) {
+        return !type.getTypeParameters().isEmpty();
+    }
+
+    /**
+     * Check if the given type is a Map and that we should check the inner types of its Value. Key is ignored.
+     *
+     * @param type Type which will be used to check if it is a Map or not.
+     * @return True or false, depending on the check.
+     */
+    private boolean isMap(ResolvedType type) {
+        return type.isInstanceOf(Map.class)
+                && type.getTypeParameters().size() == 2
+                && ReflectionUtils.shouldGoDeeper(type.getTypeParameters().get(1).getErasedType());
+    }
+
+    /**
+     * Check if the given type is an Array and that we should check the inner types of it.
+     *
+     * @param type Type which will be used to check if it is an Array or not.
+     * @return True or false, depending on the check.
+     */
+    private boolean isArray(ResolvedType type) {
+        return type.isArray()
+                && ReflectionUtils.shouldGoDeeper(type.getArrayElementType().getErasedType());
     }
 
     /**
@@ -232,5 +277,15 @@ public class MetamodelGenerator {
      */
     private String buildCollectionPath(String path) {
         return path + PATH_LIST_ELEMENTS;
+    }
+
+    /**
+     * Build a path based on the previous path and the current one.
+     *
+     * @param path Current path on the json
+     * @return A new path built based on the parameters divided by the {@link MetamodelGenerator#PATH_DIVIDER}
+     */
+    private String buildMapPath(String path) {
+        return path + PATH_DIVIDER + PATH_MAP_ELEMENTS;
     }
 }

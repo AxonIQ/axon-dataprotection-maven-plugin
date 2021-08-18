@@ -16,6 +16,7 @@
 
 package io.axoniq.plugin.data.protection.generator;
 
+import io.axoniq.plugin.data.protection.annotation.PII;
 import io.axoniq.plugin.data.protection.annotation.SensitiveData;
 import io.axoniq.plugin.data.protection.annotation.SubjectId;
 import io.axoniq.plugin.data.protection.config.DataProtectionConfig;
@@ -25,7 +26,6 @@ import org.junit.jupiter.api.*;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 class MetamodelGeneratorComplexTypesTest {
@@ -61,21 +61,6 @@ class MetamodelGeneratorComplexTypesTest {
     }
 
     @Test
-    @Disabled("Maps should be investigated further")
-    void complexMapTest() {
-        DataProtectionConfig expected = new DataProtectionConfig(
-                "io.axoniq.plugin.data.protection.generator.MetamodelGeneratorComplexTypesTest$ComplexMapTest",
-                "",
-                new SubjectIdConfig("$.subjectId"),
-                List.of(new SensitiveDataConfig("$.sensitiveData[*].string", "string"),
-                        new SensitiveDataConfig("$.sensitiveData[*].integer", "integer")));
-
-        DataProtectionConfig result = metamodelGenerator.generateMetamodel(ComplexMapTest.class);
-
-        Assertions.assertEquals(expected, result);
-    }
-
-    @Test
     void complexSetTest() {
         DataProtectionConfig expected = new DataProtectionConfig(
                 "io.axoniq.plugin.data.protection.generator.MetamodelGeneratorComplexTypesTest$ComplexSetTest",
@@ -103,20 +88,7 @@ class MetamodelGeneratorComplexTypesTest {
         Assertions.assertEquals(expected, result);
     }
 
-    @Test
-    void complexArrayTest() {
-        DataProtectionConfig expected = new DataProtectionConfig(
-                "io.axoniq.plugin.data.protection.generator.MetamodelGeneratorComplexTypesTest$ComplexArrayTest",
-                "",
-                new SubjectIdConfig("$.subjectId"),
-                List.of(new SensitiveDataConfig("$.sensitiveData[*].string", "string"),
-                        new SensitiveDataConfig("$.sensitiveData[*].integer", "integer")));
-
-        DataProtectionConfig result = metamodelGenerator.generateMetamodel(ComplexArrayTest.class);
-
-        Assertions.assertEquals(expected, result);
-    }
-
+    @PII
     static class ComplexTest {
 
         @SubjectId
@@ -125,6 +97,7 @@ class MetamodelGeneratorComplexTypesTest {
         ComplexType sensitiveData;
     }
 
+    @PII
     static class ComplexListTest {
 
         @SubjectId
@@ -133,14 +106,7 @@ class MetamodelGeneratorComplexTypesTest {
         List<ComplexType> sensitiveData;
     }
 
-    static class ComplexMapTest {
-
-        @SubjectId
-        ComplexType subjectId;
-
-        Map<ComplexType, ComplexType> sensitiveData;
-    }
-
+    @PII
     static class ComplexSetTest {
 
         @SubjectId
@@ -149,20 +115,13 @@ class MetamodelGeneratorComplexTypesTest {
         Set<ComplexType> sensitiveData;
     }
 
+    @PII
     static class ComplexCollectionTest {
 
         @SubjectId
         ComplexType subjectId;
 
         Collection<ComplexType> sensitiveData;
-    }
-
-    static class ComplexArrayTest {
-
-        @SubjectId
-        ComplexType subjectId;
-
-        ComplexType[] sensitiveData;
     }
 
     static class ComplexType {
