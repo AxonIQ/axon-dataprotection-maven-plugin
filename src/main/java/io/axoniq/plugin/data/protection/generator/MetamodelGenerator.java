@@ -236,8 +236,10 @@ public class MetamodelGenerator {
     }
 
     /**
-     * @param type
-     * @return
+     * Check if the given type is a Map and that we should check the inner types of its Value. Key is ignored.
+     *
+     * @param type Type which will be used to check if it is a Map or not.
+     * @return True or false, depending on the check.
      */
     private boolean isMap(ResolvedType type) {
         return type.isInstanceOf(Map.class)
