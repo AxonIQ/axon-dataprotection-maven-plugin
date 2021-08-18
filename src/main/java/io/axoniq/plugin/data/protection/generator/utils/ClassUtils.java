@@ -109,18 +109,6 @@ public abstract class ClassUtils {
         }
     }
 
-    /**
-     * Determine if the given type is assignable from the given value, assuming setting by reflection. Considers
-     * primitive wrapper classes as assignable to the corresponding primitive types.
-     *
-     * @param type  the target type
-     * @param value the value that should be assigned to the type
-     * @return if the type is assignable from the value
-     */
-    public static boolean isAssignableValue(Class<?> type, Object value) {
-        return (value != null ? isAssignable(type, value.getClass()) : !type.isPrimitive());
-    }
-
     static {
         primitiveWrapperTypeMap.put(Boolean.class, boolean.class);
         primitiveWrapperTypeMap.put(Byte.class, byte.class);

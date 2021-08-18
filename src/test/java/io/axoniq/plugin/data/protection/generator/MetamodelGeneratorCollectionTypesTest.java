@@ -26,7 +26,6 @@ import org.junit.jupiter.api.*;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 class MetamodelGeneratorCollectionTypesTest {
@@ -42,19 +41,6 @@ class MetamodelGeneratorCollectionTypesTest {
                 new SensitiveDataConfig("$.sensitiveData", "list"));
 
         DataProtectionConfig result = metamodelGenerator.generateMetamodel(ListTest.class);
-
-        Assertions.assertEquals(expected, result);
-    }
-
-    @Test
-    void mapTest() {
-        DataProtectionConfig expected = new DataProtectionConfig(
-                "io.axoniq.plugin.data.protection.generator.MetamodelGeneratorCollectionTypesTest$MapTest",
-                "",
-                new SubjectIdConfig("$.subjectId"),
-                new SensitiveDataConfig("$.sensitiveData", "map"));
-
-        DataProtectionConfig result = metamodelGenerator.generateMetamodel(MapTest.class);
 
         Assertions.assertEquals(expected, result);
     }
@@ -85,19 +71,6 @@ class MetamodelGeneratorCollectionTypesTest {
         Assertions.assertEquals(expected, result);
     }
 
-    @Test
-    void arrayTest() {
-        DataProtectionConfig expected = new DataProtectionConfig(
-                "io.axoniq.plugin.data.protection.generator.MetamodelGeneratorCollectionTypesTest$ArrayTest",
-                "",
-                new SubjectIdConfig("$.subjectId"),
-                new SensitiveDataConfig("$.sensitiveData", "array"));
-
-        DataProtectionConfig result = metamodelGenerator.generateMetamodel(ArrayTest.class);
-
-        Assertions.assertEquals(expected, result);
-    }
-
     @PII
     static class ListTest {
 
@@ -106,16 +79,6 @@ class MetamodelGeneratorCollectionTypesTest {
 
         @SensitiveData(replacementValue = "list")
         List<String> sensitiveData;
-    }
-
-    @PII
-    static class MapTest {
-
-        @SubjectId
-        Map<String, String> subjectId;
-
-        @SensitiveData(replacementValue = "map")
-        Map<String, String> sensitiveData;
     }
 
     @PII
@@ -136,15 +99,5 @@ class MetamodelGeneratorCollectionTypesTest {
 
         @SensitiveData(replacementValue = "collection")
         Collection<String> sensitiveData;
-    }
-
-    @PII
-    static class ArrayTest {
-
-        @SubjectId
-        String[] subjectId;
-
-        @SensitiveData(replacementValue = "array")
-        String[] sensitiveData;
     }
 }

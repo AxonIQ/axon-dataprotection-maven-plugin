@@ -37,6 +37,7 @@
         <maven-dependency-plugin.version>3.2.0</maven-dependency-plugin.version>
         <maven-plugin-plugin.version>3.6.1</maven-plugin-plugin.version>
         <maven-plugin-annotations.version>3.6.1</maven-plugin-annotations.version>
+        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <!-- Reflection -->
         <reflections.version>0.9.11</reflections.version>
         <classmate.version>1.5.1</classmate.version>
@@ -159,7 +160,9 @@
                 <executions>
                     <execution>
                         <id>compile</id>
-                        <goals> <goal>compile</goal> </goals>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
                         <configuration>
                             <sourceDirs>
                                 <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
@@ -169,7 +172,9 @@
                     </execution>
                     <execution>
                         <id>test-compile</id>
-                        <goals> <goal>test-compile</goal> </goals>
+                        <goals>
+                            <goal>test-compile</goal>
+                        </goals>
                         <configuration>
                             <sourceDirs>
                                 <sourceDir>${project.basedir}/src/test/kotlin</sourceDir>
@@ -185,6 +190,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
                 <executions>
                     <!-- We have to replace default-compile as it is treated specially by maven -->
                     <execution>
