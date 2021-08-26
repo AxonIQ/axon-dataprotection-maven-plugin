@@ -8,10 +8,11 @@ For having the properly Annotations scanned, the `axon-dataprotection-config-api
     <groupId>io.axoniq</groupId>
     <artifactId>axon-dataprotection-config-api</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <scope>compile</scope>
 </dependency>
 ```
 
-This Plugin is hooked into the `Compile` phase of the Maven Lifecycle and has a goal named `generate`.
+This Plugin is hooked into the `compile` phase of the Maven Lifecycle and has a goal named `generate`.
 The mandatory configuration is a `packages` list where you can specify all `package`s where the plugin should scan for Annotated Classes.
 
 Basically, this is an example of what you need on your project:
@@ -42,7 +43,9 @@ Basically, this is an example of what you need on your project:
 </plugins>
 ```
 
+### Versioning
 
+As we know, Events evolve and the `@Revision` annotation from Axon Framework is taken into account when generating the configuration. For that reason, every time any event changes a `@Revision`, a new configuration should be generated and the end configuration should contain both versions of the Event - this is a similar to a merge process, and it is **not automatic**.
 
 ---
 Created with :heart: by [AxonIQ](https://axoniq.io/)
