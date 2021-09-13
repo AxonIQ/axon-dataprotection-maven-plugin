@@ -44,7 +44,7 @@
         <!-- Json -->
         <jackson-databind.version>2.12.5</jackson-databind.version>
         <!-- tests -->
-        <junit.jupiter.version>5.7.2</junit.jupiter.version>
+        <junit.jupiter.version>5.8.0</junit.jupiter.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <kotlin.version>1.5.30</kotlin.version>
     </properties>
