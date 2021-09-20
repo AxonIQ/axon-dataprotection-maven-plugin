@@ -46,7 +46,7 @@
         <!-- tests -->
         <junit.jupiter.version>5.8.0</junit.jupiter.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
-        <kotlin.version>1.5.30</kotlin.version>
+        <kotlin.version>1.5.31</kotlin.version>
     </properties>
 
     <scm>
