@@ -17,16 +17,16 @@
 package io.axoniq.plugin.data.protection.generator.errors;
 
 /**
- * Exception to indicate that a given Class do not contain a {@link io.axoniq.plugin.data.protection.annotation.PII}
+ * Exception to indicate that a given Class do not contain a {@link io.axoniq.plugin.data.protection.annotation.SensitiveDataHolder}
  * annotation on it.
  */
-public class NoPIIAnnotationException extends RuntimeException {
+public class NoSensitiveDataHolderAnnotationException extends RuntimeException {
 
-    public NoPIIAnnotationException(String message) {
+    public NoSensitiveDataHolderAnnotationException(String message) {
         super(message);
     }
 
-    public NoPIIAnnotationException(Class<?> clazz) {
-        super("No PII annotated class found in [" + clazz + "]");
+    public NoSensitiveDataHolderAnnotationException(Class<?> clazz) {
+        super("No SensitiveDataHolder annotated class found in [" + clazz + "]");
     }
 }

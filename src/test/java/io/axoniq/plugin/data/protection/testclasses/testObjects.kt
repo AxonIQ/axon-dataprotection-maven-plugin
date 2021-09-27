@@ -1,7 +1,7 @@
 package io.axoniq.plugin.data.protection.testclasses
 
-import io.axoniq.plugin.data.protection.annotation.PII
 import io.axoniq.plugin.data.protection.annotation.SensitiveData
+import io.axoniq.plugin.data.protection.annotation.SensitiveDataHolder
 import io.axoniq.plugin.data.protection.annotation.SubjectId
 
 open class BaseEvent(
@@ -17,14 +17,14 @@ open class CEvent(
     aField: String?
 ) : BEvent(bField, aField)
 
-@PII
+@SensitiveDataHolder
 data class ShallowInheritanceEvent(
     override val id: String,
     @SensitiveData(replacementValue = "") val value: String,
     override val auditId: String = ""
 ) : BaseEvent(id, auditId)
 
-@PII
+@SensitiveDataHolder
 data class DeepInheritanceEvent(
     @SubjectId val id: String,
     @SensitiveData(replacementValue = "") val value: String,
@@ -33,7 +33,7 @@ data class DeepInheritanceEvent(
     override val aField: String?
 ) : CEvent(cField, bField, aField)
 
-@PII
+@SensitiveDataHolder
 data class SimpleFlatEvent(
     @SubjectId val id: String,
     @SensitiveData(replacementValue = "") val value: String,

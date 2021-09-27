@@ -16,10 +16,10 @@
 
 package io.axoniq.plugin.data.protection.generator;
 
-import io.axoniq.plugin.data.protection.annotation.PII;
 import io.axoniq.plugin.data.protection.annotation.SensitiveData;
+import io.axoniq.plugin.data.protection.annotation.SensitiveDataHolder;
 import io.axoniq.plugin.data.protection.annotation.SubjectId;
-import io.axoniq.plugin.data.protection.generator.errors.NoPIIAnnotationException;
+import io.axoniq.plugin.data.protection.generator.errors.NoSensitiveDataHolderAnnotationException;
 import io.axoniq.plugin.data.protection.generator.errors.NoSubjectIdException;
 import org.junit.jupiter.api.*;
 
@@ -28,9 +28,9 @@ public class MetamodelGeneratorTest {
     MetamodelGenerator metamodelGenerator = new MetamodelGenerator();
 
     @Test
-    void noPIIClass() {
-        Assertions.assertThrows(NoPIIAnnotationException.class,
-                                () -> metamodelGenerator.generateMetamodel(NoPIIClass.class));
+    void noSensitiveDataHolderClass() {
+        Assertions.assertThrows(NoSensitiveDataHolderAnnotationException.class,
+                                () -> metamodelGenerator.generateMetamodel(NoSensitiveDataHolderClass.class));
     }
 
     @Test
@@ -39,7 +39,7 @@ public class MetamodelGeneratorTest {
                                 () -> metamodelGenerator.generateMetamodel(NoSubjectIdClass.class));
     }
 
-    static class NoPIIClass {
+    static class NoSensitiveDataHolderClass {
 
         @SubjectId
         String subjectId;
@@ -47,7 +47,7 @@ public class MetamodelGeneratorTest {
         String sensitiveData;
     }
 
-    @PII
+    @SensitiveDataHolder
     static class NoSubjectIdClass {
 
         String subjectId;

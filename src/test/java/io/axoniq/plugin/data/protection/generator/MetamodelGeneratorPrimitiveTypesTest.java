@@ -16,8 +16,8 @@
 
 package io.axoniq.plugin.data.protection.generator;
 
-import io.axoniq.plugin.data.protection.annotation.PII;
 import io.axoniq.plugin.data.protection.annotation.SensitiveData;
+import io.axoniq.plugin.data.protection.annotation.SensitiveDataHolder;
 import io.axoniq.plugin.data.protection.annotation.SubjectId;
 import io.axoniq.plugin.data.protection.config.DataProtectionConfig;
 import io.axoniq.plugin.data.protection.config.SensitiveDataConfig;
@@ -132,7 +132,7 @@ class MetamodelGeneratorPrimitiveTypesTest {
         Assertions.assertEquals(expected, result);
     }
 
-    @PII
+    @SensitiveDataHolder
     static class IntTest {
 
         @SubjectId
@@ -142,7 +142,7 @@ class MetamodelGeneratorPrimitiveTypesTest {
         int sensitiveData;
     }
 
-    @PII
+    @SensitiveDataHolder
     static class FloatTest {
 
         @SubjectId
@@ -152,7 +152,7 @@ class MetamodelGeneratorPrimitiveTypesTest {
         float sensitiveData;
     }
 
-    @PII
+    @SensitiveDataHolder
     static class BooleanTest {
 
         @SubjectId
@@ -162,7 +162,7 @@ class MetamodelGeneratorPrimitiveTypesTest {
         boolean sensitiveData;
     }
 
-    @PII
+    @SensitiveDataHolder
     static class LongTest {
 
         @SubjectId
@@ -172,7 +172,7 @@ class MetamodelGeneratorPrimitiveTypesTest {
         long sensitiveData;
     }
 
-    @PII
+    @SensitiveDataHolder
     static class ShortTest {
 
         @SubjectId
@@ -182,7 +182,7 @@ class MetamodelGeneratorPrimitiveTypesTest {
         short sensitiveData;
     }
 
-    @PII
+    @SensitiveDataHolder
     static class DoubleTest {
 
         @SubjectId
@@ -192,7 +192,7 @@ class MetamodelGeneratorPrimitiveTypesTest {
         double sensitiveData;
     }
 
-    @PII
+    @SensitiveDataHolder
     static class CharacterTest {
 
         @SubjectId
@@ -202,7 +202,7 @@ class MetamodelGeneratorPrimitiveTypesTest {
         char sensitiveData;
     }
 
-    @PII
+    @SensitiveDataHolder
     static class ByteTest {
 
         @SubjectId

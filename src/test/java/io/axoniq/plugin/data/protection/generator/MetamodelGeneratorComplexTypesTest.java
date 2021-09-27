@@ -16,8 +16,8 @@
 
 package io.axoniq.plugin.data.protection.generator;
 
-import io.axoniq.plugin.data.protection.annotation.PII;
 import io.axoniq.plugin.data.protection.annotation.SensitiveData;
+import io.axoniq.plugin.data.protection.annotation.SensitiveDataHolder;
 import io.axoniq.plugin.data.protection.annotation.SubjectId;
 import io.axoniq.plugin.data.protection.config.DataProtectionConfig;
 import io.axoniq.plugin.data.protection.config.SensitiveDataConfig;
@@ -88,7 +88,7 @@ class MetamodelGeneratorComplexTypesTest {
         Assertions.assertEquals(expected, result);
     }
 
-    @PII
+    @SensitiveDataHolder
     static class ComplexTest {
 
         @SubjectId
@@ -97,7 +97,7 @@ class MetamodelGeneratorComplexTypesTest {
         ComplexType sensitiveData;
     }
 
-    @PII
+    @SensitiveDataHolder
     static class ComplexListTest {
 
         @SubjectId
@@ -106,7 +106,7 @@ class MetamodelGeneratorComplexTypesTest {
         List<ComplexType> sensitiveData;
     }
 
-    @PII
+    @SensitiveDataHolder
     static class ComplexSetTest {
 
         @SubjectId
@@ -115,7 +115,7 @@ class MetamodelGeneratorComplexTypesTest {
         Set<ComplexType> sensitiveData;
     }
 
-    @PII
+    @SensitiveDataHolder
     static class ComplexCollectionTest {
 
         @SubjectId

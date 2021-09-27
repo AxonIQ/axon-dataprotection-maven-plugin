@@ -53,8 +53,8 @@ public class AxonDataProtectionMojo extends AbstractMojo {
     private PluginDescriptor descriptor;
 
     /**
-     * This property specify in which packages the plugin should look for the PII Annotation to start generating the
-     * metamodel.
+     * This property specify in which packages the plugin should look for the {@link
+     * io.axoniq.plugin.data.protection.annotation.SensitiveDataHolder} Annotation to start generating the metamodel.
      */
     @Parameter(property = "packages", required = true)
     private List<String> packages;
