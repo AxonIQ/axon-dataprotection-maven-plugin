@@ -16,8 +16,8 @@
 
 package io.axoniq.plugin.data.protection.generator;
 
-import io.axoniq.plugin.data.protection.annotation.PII;
 import io.axoniq.plugin.data.protection.annotation.SensitiveData;
+import io.axoniq.plugin.data.protection.annotation.SensitiveDataHolder;
 import io.axoniq.plugin.data.protection.annotation.SubjectId;
 import io.axoniq.plugin.data.protection.config.DataProtectionConfig;
 import io.axoniq.plugin.data.protection.config.SensitiveDataConfig;
@@ -155,7 +155,7 @@ class MetamodelGeneratorDateTimeTypesTest {
         Assertions.assertEquals(expected, result);
     }
 
-    @PII
+    @SensitiveDataHolder
     static class DateTest {
 
         @SubjectId
@@ -165,7 +165,7 @@ class MetamodelGeneratorDateTimeTypesTest {
         Date sensitiveData;
     }
 
-    @PII
+    @SensitiveDataHolder
     static class LocalDateTest {
 
         @SubjectId
@@ -175,7 +175,7 @@ class MetamodelGeneratorDateTimeTypesTest {
         LocalDate sensitiveData;
     }
 
-    @PII
+    @SensitiveDataHolder
     static class LocalTimeTest {
 
         @SubjectId
@@ -185,7 +185,7 @@ class MetamodelGeneratorDateTimeTypesTest {
         LocalTime sensitiveData;
     }
 
-    @PII
+    @SensitiveDataHolder
     static class LocalDateTimeTest {
 
         @SubjectId
@@ -195,7 +195,7 @@ class MetamodelGeneratorDateTimeTypesTest {
         LocalDateTime sensitiveData;
     }
 
-    @PII
+    @SensitiveDataHolder
     static class OffsetDateTimeTest {
 
         @SubjectId
@@ -205,7 +205,7 @@ class MetamodelGeneratorDateTimeTypesTest {
         OffsetDateTime sensitiveData;
     }
 
-    @PII
+    @SensitiveDataHolder
     static class ZonedDateTimeTest {
 
         @SubjectId
@@ -215,7 +215,7 @@ class MetamodelGeneratorDateTimeTypesTest {
         ZonedDateTime sensitiveData;
     }
 
-    @PII
+    @SensitiveDataHolder
     static class InstantTest {
 
         @SubjectId
@@ -225,7 +225,7 @@ class MetamodelGeneratorDateTimeTypesTest {
         Instant sensitiveData;
     }
 
-    @PII
+    @SensitiveDataHolder
     static class PeriodTest {
 
         @SubjectId
@@ -235,7 +235,7 @@ class MetamodelGeneratorDateTimeTypesTest {
         Period sensitiveData;
     }
 
-    @PII
+    @SensitiveDataHolder
     static class DurationTest {
 
         @SubjectId

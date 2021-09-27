@@ -18,14 +18,14 @@ package io.axoniq.plugin.data.protection.generator;
 
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.TypeResolver;
-import io.axoniq.plugin.data.protection.annotation.PII;
 import io.axoniq.plugin.data.protection.annotation.SensitiveData;
+import io.axoniq.plugin.data.protection.annotation.SensitiveDataHolder;
 import io.axoniq.plugin.data.protection.annotation.SubjectId;
 import io.axoniq.plugin.data.protection.config.DataProtectionConfig;
 import io.axoniq.plugin.data.protection.config.DataProtectionConfigList;
 import io.axoniq.plugin.data.protection.config.SensitiveDataConfig;
 import io.axoniq.plugin.data.protection.config.SubjectIdConfig;
-import io.axoniq.plugin.data.protection.generator.errors.NoPIIAnnotationException;
+import io.axoniq.plugin.data.protection.generator.errors.NoSensitiveDataHolderAnnotationException;
 import io.axoniq.plugin.data.protection.generator.errors.NoSubjectIdException;
 import io.axoniq.plugin.data.protection.generator.utils.AnnotationUtils;
 import io.axoniq.plugin.data.protection.generator.utils.ReflectionUtils;
@@ -69,7 +69,7 @@ public class MetamodelGenerator {
     private final Log log;
 
     /**
-     * Create a new instance of the {@link MetamodelGenerator}. Specially used for tests setting up the default {@link
+     * Create a new instance of the {@link MetamodelGenerator}. Specially useful on tests setting up the default {@link
      * Log}.
      */
     public MetamodelGenerator() {
@@ -109,8 +109,8 @@ public class MetamodelGenerator {
         List<DataProtectionConfig> dataProtectionConfigs = new ArrayList<>();
         // reflections lib code
         Reflections reflections = new Reflections(pkg);
-        Set<Class<?>> annotatedClasses = reflections.getTypesAnnotatedWith(PII.class);
-        // all PII annotated class
+        Set<Class<?>> annotatedClasses = reflections.getTypesAnnotatedWith(SensitiveDataHolder.class);
+        // all SensitiveDataHolder annotated class
         annotatedClasses.stream()
                         .map(this::generateMetamodel)
                         .forEach(dataProtectionConfigs::add);
@@ -122,23 +122,23 @@ public class MetamodelGenerator {
     /**
      * Create a {@link DataProtectionConfig} instance based on the class and its fields.
      *
-     * @param piiAnnotatedClass A class which is annotated with {@link PII}.
+     * @param annotatedClass A class which is annotated with {@link SensitiveDataHolder}.
      * @return A new instance of a {@link DataProtectionConfig}.
      */
-    public DataProtectionConfig generateMetamodel(Class<?> piiAnnotatedClass) {
-        if (!piiAnnotatedClass.isAnnotationPresent(PII.class)) {
-            throw new NoPIIAnnotationException(piiAnnotatedClass);
+    public DataProtectionConfig generateMetamodel(Class<?> annotatedClass) {
+        if (!annotatedClass.isAnnotationPresent(SensitiveDataHolder.class)) {
+            throw new NoSensitiveDataHolderAnnotationException(annotatedClass);
         }
-        log.debug(String.format("Scanning class [%s]", ReflectionUtils.extractName(piiAnnotatedClass)));
+        log.debug(String.format("Scanning class [%s]", ReflectionUtils.extractName(annotatedClass)));
         List<SensitiveDataConfig> sensitiveDataList = new ArrayList<>();
-        String type = ReflectionUtils.extractName(piiAnnotatedClass);
-        String revision = ReflectionUtils.extractRevision(piiAnnotatedClass);
+        String type = ReflectionUtils.extractName(annotatedClass);
+        String revision = ReflectionUtils.extractRevision(annotatedClass);
 
-        List<Field> piiClassFields = ReflectionUtils.getAllDeclaredFields(piiAnnotatedClass);
-        SubjectIdConfig subjectId = extractSubjectId(piiClassFields)
-                .orElseThrow(() -> new NoSubjectIdException(piiAnnotatedClass));
+        List<Field> classFields = ReflectionUtils.getAllDeclaredFields(annotatedClass);
+        SubjectIdConfig subjectId = extractSubjectId(classFields)
+                .orElseThrow(() -> new NoSubjectIdException(annotatedClass));
 
-        extractSensitiveData(piiClassFields, sensitiveDataList, PATH_PREFIX);
+        extractSensitiveData(classFields, sensitiveDataList, PATH_PREFIX);
         return new DataProtectionConfig(type, revision, subjectId, sensitiveDataList);
     }
 
@@ -146,46 +146,45 @@ public class MetamodelGenerator {
      * Create a {@link SubjectIdConfig} instance based on a list of {@link Field}s. The first field annotated with
      * {@link SubjectId} is the one which the value will be taken.
      *
-     * @param piiClassFields List of fields from a {@link Class}.
+     * @param classFields List of fields from a {@link Class}.
      * @return A new instance of a {@link SubjectIdConfig}.
      */
-    private Optional<SubjectIdConfig> extractSubjectId(List<Field> piiClassFields) {
-        return piiClassFields.stream()
-                             .filter(field -> AnnotationUtils.isAnnotationPresent(field, SubjectId.class))
-                             .findFirst()
-                             .map(subjectIdField -> new SubjectIdConfig(buildPath(PATH_PREFIX,
-                                                                                  ReflectionUtils.extractName(
-                                                                                          subjectIdField))));
+    private Optional<SubjectIdConfig> extractSubjectId(List<Field> classFields) {
+        return classFields.stream()
+                          .filter(field -> AnnotationUtils.isAnnotationPresent(field, SubjectId.class))
+                          .findFirst()
+                          .map(subjectIdField -> new SubjectIdConfig(
+                                  buildPath(PATH_PREFIX, ReflectionUtils.extractName(subjectIdField))));
     }
 
     /**
      * Create one or more instances of a {@link SensitiveDataConfig} which are added to the {@param sensitiveDataList}.
      * This method is called recursively.
      *
-     * @param piiClassFields    A list of {@link Field}s that may contains {@link SensitiveData} annotated fields.
+     * @param classFields       A list of {@link Field}s that may contains {@link SensitiveData} annotated fields.
      * @param sensitiveDataList A list which will hold all the {@link SensitiveDataConfig} created during the calls.
      *                          Needed because this is meant to be a recursive method.
      * @param path              The path from the previous field. Needed because this is meant to be a recursive
      *                          method.
      */
-    private void extractSensitiveData(List<Field> piiClassFields,
+    private void extractSensitiveData(List<Field> classFields,
                                       List<SensitiveDataConfig> sensitiveDataList,
                                       String path) {
         // direct annotated fields (ignoring the SubjectId annotated field)
-        piiClassFields.stream()
-                      .filter(f -> AnnotationUtils.isAnnotationPresent(f, SensitiveData.class))
-                      .filter(f -> !AnnotationUtils.isAnnotationPresent(f, SubjectId.class))
-                      .forEach(f -> sensitiveDataList.add(
-                              new SensitiveDataConfig(buildPath(path, ReflectionUtils.extractName(f)),
-                                                      ReflectionUtils.extractReplacementValue(f))
-                      ));
+        classFields.stream()
+                   .filter(f -> AnnotationUtils.isAnnotationPresent(f, SensitiveData.class))
+                   .filter(f -> !AnnotationUtils.isAnnotationPresent(f, SubjectId.class))
+                   .forEach(f -> sensitiveDataList.add(
+                           new SensitiveDataConfig(buildPath(path, ReflectionUtils.extractName(f)),
+                                                   ReflectionUtils.extractReplacementValue(f))
+                   ));
         // if it's not a primitive type, go deeper recursively (ignoring the SubjectId annotated field)
-        piiClassFields.stream()
-                      .filter(f -> !AnnotationUtils.isAnnotationPresent(f, SubjectId.class))
-                      .filter(ReflectionUtils::shouldGoDeeper)
-                      .forEach(field -> checkType(field,
-                                                  sensitiveDataList,
-                                                  buildPath(path, ReflectionUtils.extractName(field))));
+        classFields.stream()
+                   .filter(f -> !AnnotationUtils.isAnnotationPresent(f, SubjectId.class))
+                   .filter(ReflectionUtils::shouldGoDeeper)
+                   .forEach(field -> checkType(field,
+                                               sensitiveDataList,
+                                               buildPath(path, ReflectionUtils.extractName(field))));
     }
 
     /**

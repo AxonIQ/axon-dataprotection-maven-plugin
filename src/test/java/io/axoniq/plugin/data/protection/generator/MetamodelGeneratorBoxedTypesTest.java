@@ -16,8 +16,8 @@
 
 package io.axoniq.plugin.data.protection.generator;
 
-import io.axoniq.plugin.data.protection.annotation.PII;
 import io.axoniq.plugin.data.protection.annotation.SensitiveData;
+import io.axoniq.plugin.data.protection.annotation.SensitiveDataHolder;
 import io.axoniq.plugin.data.protection.annotation.SubjectId;
 import io.axoniq.plugin.data.protection.config.DataProtectionConfig;
 import io.axoniq.plugin.data.protection.config.SensitiveDataConfig;
@@ -145,7 +145,7 @@ class MetamodelGeneratorBoxedTypesTest {
         Assertions.assertEquals(expected, result);
     }
 
-    @PII
+    @SensitiveDataHolder
     static class IntegerTest {
 
         @SubjectId
@@ -155,7 +155,7 @@ class MetamodelGeneratorBoxedTypesTest {
         Integer sensitiveData;
     }
 
-    @PII
+    @SensitiveDataHolder
     static class StringTest {
 
         @SubjectId
@@ -165,7 +165,7 @@ class MetamodelGeneratorBoxedTypesTest {
         String sensitiveData;
     }
 
-    @PII
+    @SensitiveDataHolder
     static class FloatTest {
 
         @SubjectId
@@ -175,7 +175,7 @@ class MetamodelGeneratorBoxedTypesTest {
         Float sensitiveData;
     }
 
-    @PII
+    @SensitiveDataHolder
     static class BooleanTest {
 
         @SubjectId
@@ -185,7 +185,7 @@ class MetamodelGeneratorBoxedTypesTest {
         Boolean sensitiveData;
     }
 
-    @PII
+    @SensitiveDataHolder
     static class LongTest {
 
         @SubjectId
@@ -195,7 +195,7 @@ class MetamodelGeneratorBoxedTypesTest {
         Long sensitiveData;
     }
 
-    @PII
+    @SensitiveDataHolder
     static class ShortTest {
 
         @SubjectId
@@ -205,7 +205,7 @@ class MetamodelGeneratorBoxedTypesTest {
         Short sensitiveData;
     }
 
-    @PII
+    @SensitiveDataHolder
     static class DoubleTest {
 
         @SubjectId
@@ -215,7 +215,7 @@ class MetamodelGeneratorBoxedTypesTest {
         Double sensitiveData;
     }
 
-    @PII
+    @SensitiveDataHolder
     static class CharacterTest {
 
         @SubjectId
@@ -225,7 +225,7 @@ class MetamodelGeneratorBoxedTypesTest {
         Character sensitiveData;
     }
 
-    @PII
+    @SensitiveDataHolder
     static class ByteTest {
 
         @SubjectId

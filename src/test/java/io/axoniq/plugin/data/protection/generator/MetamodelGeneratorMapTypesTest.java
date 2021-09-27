@@ -16,8 +16,8 @@
 
 package io.axoniq.plugin.data.protection.generator;
 
-import io.axoniq.plugin.data.protection.annotation.PII;
 import io.axoniq.plugin.data.protection.annotation.SensitiveData;
+import io.axoniq.plugin.data.protection.annotation.SensitiveDataHolder;
 import io.axoniq.plugin.data.protection.annotation.SubjectId;
 import io.axoniq.plugin.data.protection.config.DataProtectionConfig;
 import io.axoniq.plugin.data.protection.config.SensitiveDataConfig;
@@ -58,7 +58,7 @@ class MetamodelGeneratorMapTypesTest {
         Assertions.assertEquals(expected, result);
     }
 
-    @PII
+    @SensitiveDataHolder
     static class MapTest {
 
         @SubjectId
@@ -68,7 +68,7 @@ class MetamodelGeneratorMapTypesTest {
         Map<String, String> sensitiveData;
     }
 
-    @PII
+    @SensitiveDataHolder
     static class ComplexMapTest {
 
         @SubjectId
