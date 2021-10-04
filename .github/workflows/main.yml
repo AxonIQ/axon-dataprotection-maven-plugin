@@ -1,6 +1,10 @@
 name: Axon Data Protection Maven Plugin
 
-on: [ push, pull_request ]
+on:
+  push:
+    branches:
+      - main
+      - master
 
 jobs:
   build:
@@ -12,24 +16,23 @@ jobs:
         uses: actions/checkout@v2.3.4
 
       - name: Set up JDK 11
-        uses: actions/setup-java@v2.3.1
+        uses: actions/setup-java@v2.3.0
         with:
           distribution: 'adopt'
           java-version: 11
+          cache: 'maven'
           server-id: axoniq-nexus
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
 
-      - name: Cache .m2
-        uses: actions/cache@v2.1.6
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven
-
       - name: Build and verify
         run: mvn -B -U clean verify
+        env:
+          MAVEN_USERNAME: ${{ secrets.DEVBOT_GITHUB_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.DEVBOT_GITHUB_TOKEN }}
+
+      - name: Deploy to internal nexus
+        run: mvn -B -U deploy -DskipTests=true
         env:
           MAVEN_USERNAME: ${{ secrets.DEVBOT_GITHUB_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.DEVBOT_GITHUB_TOKEN }}
