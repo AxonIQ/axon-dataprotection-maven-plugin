@@ -1,7 +1,7 @@
 # Axon Data Protection Maven Plugin
 
 [![Release](https://img.shields.io/github/release/AxonIQ/axon-dataprotection-maven-plugin.svg?style=flat-square)](https://github.com/AxonIQ/axon-dataprotection-maven-plugin/releases/latest)
-![Build Status](https://github.com/AxonIQ/axon-dataprotection-maven-plugin/workflows/Axon%20Server%20Plugin%20-%20Data%20Protection/badge.svg?branch=master)
+![Build Status](https://github.com/AxonIQ/axon-dataprotection-maven-plugin/workflows/Axon%20Data%20Protection%20Maven%20Plugin/badge.svg?branch=master)
 
 Axon Data Protection Maven Plugin is a Maven Plugin responsible to generate the config file to be used on the Axon Server Plugin Data Protection module. The config is generated based on Annotated Classes (using the Axon Data Protection Config API Annotations) and the output is a Json file, which is one of the inputs for the Axon Server Data Protection Plugin.
 
