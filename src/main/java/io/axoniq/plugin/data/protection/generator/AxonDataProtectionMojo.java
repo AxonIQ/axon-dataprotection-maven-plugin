@@ -93,6 +93,9 @@ public class AxonDataProtectionMojo extends AbstractMojo {
      */
     private void writeOutput(DataProtectionConfigList config) throws MojoExecutionException {
         try {
+            if (!outputConfig.getParentFile().exists()) {
+                outputConfig.getParentFile().mkdirs();
+            }
             objectMapper.writerWithDefaultPrettyPrinter().writeValue(outputConfig, config);
         } catch (IOException e) {
             // TODO: print the config as a info/warn message
