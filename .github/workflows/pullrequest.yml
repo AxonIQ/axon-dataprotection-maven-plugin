@@ -24,3 +24,6 @@ jobs:
 
       - name: Build and verify
         run: mvn -B -U clean verify
+        env:
+          MAVEN_USERNAME: ${{ secrets.DEVBOT_GITHUB_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.DEVBOT_GITHUB_TOKEN }}
