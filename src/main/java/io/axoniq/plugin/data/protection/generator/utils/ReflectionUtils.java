@@ -20,10 +20,6 @@ import io.axoniq.plugin.data.protection.annotation.SensitiveData;
 import org.axonframework.serialization.Revision;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Duration;
@@ -34,7 +30,11 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.Period;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Utils around Java Reflection. It offers several methods for checking types for {@link Class} and {@link Field}.
@@ -69,7 +69,8 @@ public class ReflectionUtils {
     public static boolean shouldGoDeeper(Field field) {
         return !isPrimitiveOrWrapper(field.getType())
                 && !isCommonJavaType(field.getType())
-                && !isDateTimeJavaType(field.getType());
+                && !isDateTimeJavaType(field.getType())
+                && !isEnumType(field.getType());
     }
 
     /**
@@ -114,6 +115,17 @@ public class ReflectionUtils {
                 || ClassUtils.isAssignable(Period.class, clazz)
                 || ClassUtils.isAssignable(Duration.class, clazz);
     }
+
+    /**
+     * Check for Java Enum types.
+     *
+     * @param clazz The class which you want to check.
+     * @return True or false, depending on the check.
+     */
+    private static boolean isEnumType(Class<?> clazz) {
+        return clazz.isEnum();
+    }
+
 
     /**
      * Extract the {@link Revision} value when the annotation is present.
@@ -164,41 +176,47 @@ public class ReflectionUtils {
     }
 
     /**
-     * Get all the declared fields on the class and of all super classes or interfaces that the class implements. This will scan the whole
-     * inheritance tree. Redeclared fields will produce semi-duplicates.
+     * Get all the declared fields on the class and of all super classes or interfaces that the class implements. This
+     * will scan the whole inheritance tree. Redeclared fields will produce semi-duplicates.
+     *
      * @param clazz The class to inspect the fields of.
      * @return The list of all fields, including fields of superclasses and interfaces
      */
     public static List<Field> getAllDeclaredFields(Class<?> clazz) {
-        if (clazz == null) { return new ArrayList<>(); }
+        if (clazz == null) {
+            return new ArrayList<>();
+        }
 
         List<Class<?>> parents = getAllParents(clazz);
         List<Field> fields = parents.stream()
-                                     .flatMap(c -> Arrays.stream(c.getDeclaredFields()))
-                                     .collect(Collectors.toList());
+                                    .flatMap(c -> Arrays.stream(c.getDeclaredFields()))
+                                    .collect(Collectors.toList());
         fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
         return fields;
     }
 
     /**
      * Get all the super classes or interfaces of the given class. This will scan the whole inheritance tree
+     *
      * @param clazz The class to inspect for super classes and interfaces
      * @return The list of all super classes and interfaces
      */
     public static List<Class<?>> getAllParents(Class<?> clazz) {
-        if (clazz == null) { return new ArrayList<>(); }
+        if (clazz == null) {
+            return new ArrayList<>();
+        }
         ArrayList<Class<?>> classes = new ArrayList<>();
 
         Class<?> superclass = clazz.getSuperclass();
 
-        if(superclass != null) {
+        if (superclass != null) {
             classes.add(superclass);
             classes.addAll(getAllParents(superclass));
         }
 
         List<Class<?>> interfaces = Arrays.asList(clazz.getInterfaces());
         classes.addAll(interfaces);
-        interfaces.forEach(i ->  classes.addAll(getAllParents(i)));
+        interfaces.forEach(i -> classes.addAll(getAllParents(i)));
 
         return classes;
     }

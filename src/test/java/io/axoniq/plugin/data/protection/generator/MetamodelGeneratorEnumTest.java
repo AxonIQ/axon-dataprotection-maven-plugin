@@ -19,39 +19,37 @@ package io.axoniq.plugin.data.protection.generator;
 import io.axoniq.plugin.data.protection.annotation.SensitiveData;
 import io.axoniq.plugin.data.protection.annotation.SensitiveDataHolder;
 import io.axoniq.plugin.data.protection.annotation.SubjectId;
-import io.axoniq.plugin.data.protection.generator.errors.NoSensitiveDataHolderAnnotationException;
-import io.axoniq.plugin.data.protection.generator.errors.NoSubjectIdException;
+import io.axoniq.plugin.data.protection.config.DataProtectionConfig;
+import io.axoniq.plugin.data.protection.config.SensitiveDataConfig;
+import io.axoniq.plugin.data.protection.config.SubjectIdConfig;
 import org.junit.jupiter.api.*;
 
-public class MetamodelGeneratorTest {
+public class MetamodelGeneratorEnumTest {
 
     MetamodelGenerator metamodelGenerator = new MetamodelGenerator();
 
     @Test
-    void noSensitiveDataHolderClass() {
-        Assertions.assertThrows(NoSensitiveDataHolderAnnotationException.class,
-                                () -> metamodelGenerator.generateMetamodel(NoSensitiveDataHolderClass.class));
+    void enumSensitiveDataClass() {
+        DataProtectionConfig expected = new DataProtectionConfig(
+                "io.axoniq.plugin.data.protection.generator.MetamodelGeneratorEnumTest$EnumTest",
+                "",
+                new SubjectIdConfig("$.subjectId"),
+                new SensitiveDataConfig("$.sensitiveData", "enum"));
+
+        DataProtectionConfig result = metamodelGenerator.generateMetamodel(MetamodelGeneratorEnumTest.EnumTest.class);
     }
 
-    @Test
-    void noSubjectIdClass() {
-        Assertions.assertThrows(NoSubjectIdException.class,
-                                () -> metamodelGenerator.generateMetamodel(NoSubjectIdClass.class));
-    }
-
-    static class NoSensitiveDataHolderClass {
-
-        @SubjectId
-        String subjectId;
-        @SensitiveData(replacementValue = "replacement-value")
-        String sensitiveData;
+    enum Enum {
+        IGNORED
     }
 
     @SensitiveDataHolder
-    static class NoSubjectIdClass {
+    static class EnumTest {
 
-        String subjectId;
-        @SensitiveData(replacementValue = "replacement-value")
-        String sensitiveData;
+        @SubjectId
+        Integer subjectId;
+
+        @SensitiveData(replacementValue = "enum")
+        Enum enumeration;
     }
 }
