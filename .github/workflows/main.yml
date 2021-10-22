@@ -26,13 +26,13 @@ jobs:
           server-password: MAVEN_PASSWORD
 
       - name: Build and verify
-        run: mvn -B -U clean verify
+        run: ./mvnw -B -U clean verify
         env:
           MAVEN_USERNAME: ${{ secrets.DEVBOT_GITHUB_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.DEVBOT_GITHUB_TOKEN }}
 
       - name: Deploy to internal nexus
-        run: mvn -B -U deploy -DskipTests=true
+        run: ./mvnw -B -U deploy -DskipTests=true
         env:
           MAVEN_USERNAME: ${{ secrets.DEVBOT_GITHUB_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.DEVBOT_GITHUB_TOKEN }}
