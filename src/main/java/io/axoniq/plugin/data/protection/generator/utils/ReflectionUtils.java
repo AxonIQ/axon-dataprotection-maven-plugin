@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 /**
  * Utils around Java Reflection. It offers several methods for checking types for {@link Class} and {@link Field}.
  */
-public class ReflectionUtils {
+public abstract class ReflectionUtils {
 
     /**
      * Empty String constant.
@@ -48,7 +48,7 @@ public class ReflectionUtils {
 
     /**
      * Check if it should go deeper checking for extra fields inside the given class. This is not true for primitives,
-     * wrappers and common java types.
+     * wrappers, enums and common java types.
      *
      * @param clazz The class which you want to check.
      * @return True or false, depending on the check.
@@ -56,21 +56,19 @@ public class ReflectionUtils {
     public static boolean shouldGoDeeper(Class<?> clazz) {
         return !isPrimitiveOrWrapper(clazz)
                 && !isCommonJavaType(clazz)
-                && !isDateTimeJavaType(clazz);
+                && !isDateTimeJavaType(clazz)
+                && !isEnumType(clazz);
     }
 
     /**
      * Check if it should go deeper checking for extra fields inside the type of the given field. This is not true for
-     * primitives, wrappers and common java types.
+     * primitives, wrappers, enums and common java types.
      *
      * @param field The field which you want to check.
      * @return True or false, depending on the check.
      */
     public static boolean shouldGoDeeper(Field field) {
-        return !isPrimitiveOrWrapper(field.getType())
-                && !isCommonJavaType(field.getType())
-                && !isDateTimeJavaType(field.getType())
-                && !isEnumType(field.getType());
+        return shouldGoDeeper(field.getType());
     }
 
     /**

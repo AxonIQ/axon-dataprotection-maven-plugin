@@ -34,9 +34,10 @@ public class MetamodelGeneratorEnumTest {
                 "io.axoniq.plugin.data.protection.generator.MetamodelGeneratorEnumTest$EnumTest",
                 "",
                 new SubjectIdConfig("$.subjectId"),
-                new SensitiveDataConfig("$.sensitiveData", "enum"));
+                new SensitiveDataConfig("$.enumeration", "enum"));
 
         DataProtectionConfig result = metamodelGenerator.generateMetamodel(MetamodelGeneratorEnumTest.EnumTest.class);
+        Assertions.assertEquals(expected, result);
     }
 
     enum Enum {

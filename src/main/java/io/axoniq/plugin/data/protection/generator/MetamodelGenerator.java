@@ -37,9 +37,11 @@ import org.reflections.Reflections;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
+import static io.axoniq.plugin.data.protection.generator.utils.ReflectionUtils.*;
+import static io.axoniq.plugin.data.protection.generator.utils.TypeDetector.*;
 
 /**
  * Class responsible to hold the logic for generating the Metamodel Configuration.
@@ -68,22 +70,38 @@ public class MetamodelGenerator {
 
     private final Log log;
 
+    private final List<String> ignores;
+
     /**
      * Create a new instance of the {@link MetamodelGenerator}. Specially useful on tests setting up the default {@link
      * Log}.
      */
     public MetamodelGenerator() {
         this.log = new SystemStreamLog();
+        this.ignores = new ArrayList<>();
+    }
+
+    /**
+     * Create a new instance of the {@link MetamodelGenerator}. Specially useful on tests setting up the default {@link
+     * Log}.
+     *
+     * @param ignores List of classes or packages that should be ignored when checking for types.
+     */
+    public MetamodelGenerator(List<String> ignores) {
+        this.log = new SystemStreamLog();
+        this.ignores = ignores;
     }
 
     /**
      * Create a new instance of the {@link MetamodelGenerator}.
      *
-     * @param log Log to be used on class. As a Maven Plugin, the default log from the {@link AbstractMojo#getLog()} is
-     *            recommended.
+     * @param log     Log to be used on class. As a Maven Plugin, the default log from the {@link AbstractMojo#getLog()}
+     *                is recommended.
+     * @param ignores List of classes or packages that should be ignored when checking for types.
      */
-    public MetamodelGenerator(Log log) {
+    public MetamodelGenerator(Log log, List<String> ignores) {
         this.log = log;
+        this.ignores = ignores;
     }
 
     /**
@@ -129,12 +147,12 @@ public class MetamodelGenerator {
         if (!annotatedClass.isAnnotationPresent(SensitiveDataHolder.class)) {
             throw new NoSensitiveDataHolderAnnotationException(annotatedClass);
         }
-        log.debug(String.format("Scanning class [%s]", ReflectionUtils.extractName(annotatedClass)));
+        log.debug(String.format("Scanning class [%s]", extractName(annotatedClass)));
         List<SensitiveDataConfig> sensitiveDataList = new ArrayList<>();
-        String type = ReflectionUtils.extractName(annotatedClass);
-        String revision = ReflectionUtils.extractRevision(annotatedClass);
+        String type = extractName(annotatedClass);
+        String revision = extractRevision(annotatedClass);
 
-        List<Field> classFields = ReflectionUtils.getAllDeclaredFields(annotatedClass);
+        List<Field> classFields = getAllDeclaredFields(annotatedClass);
         SubjectIdConfig subjectId = extractSubjectId(classFields)
                 .orElseThrow(() -> new NoSubjectIdException(annotatedClass));
 
@@ -154,7 +172,7 @@ public class MetamodelGenerator {
                           .filter(field -> AnnotationUtils.isAnnotationPresent(field, SubjectId.class))
                           .findFirst()
                           .map(subjectIdField -> new SubjectIdConfig(
-                                  buildPath(PATH_PREFIX, ReflectionUtils.extractName(subjectIdField))));
+                                  buildPath(PATH_PREFIX, extractName(subjectIdField))));
     }
 
     /**
@@ -175,16 +193,17 @@ public class MetamodelGenerator {
                    .filter(f -> AnnotationUtils.isAnnotationPresent(f, SensitiveData.class))
                    .filter(f -> !AnnotationUtils.isAnnotationPresent(f, SubjectId.class))
                    .forEach(f -> sensitiveDataList.add(
-                           new SensitiveDataConfig(buildPath(path, ReflectionUtils.extractName(f)),
-                                                   ReflectionUtils.extractReplacementValue(f))
+                           new SensitiveDataConfig(buildPath(path, extractName(f)),
+                                                   extractReplacementValue(f))
                    ));
         // if it's not a primitive type, go deeper recursively (ignoring the SubjectId annotated field)
         classFields.stream()
                    .filter(f -> !AnnotationUtils.isAnnotationPresent(f, SubjectId.class))
+                   .filter(f -> !ignore(ignores, f.getType()))
                    .filter(ReflectionUtils::shouldGoDeeper)
                    .forEach(field -> checkType(field,
                                                sensitiveDataList,
-                                               buildPath(path, ReflectionUtils.extractName(field))));
+                                               buildPath(path, extractName(field))));
     }
 
     /**
@@ -205,22 +224,22 @@ public class MetamodelGenerator {
 
         if (isMap(type)) {
             // only Value of the Map, ignore Key
-            extractSensitiveData(ReflectionUtils.getAllDeclaredFields(type.getTypeParameters().get(1).getErasedType()),
+            extractSensitiveData(getAllDeclaredFields(type.getTypeParameters().get(1).getErasedType()),
                                  sensitiveDataList,
                                  buildMapPath(path));
         } else if (isArray(type)) {
-            extractSensitiveData(ReflectionUtils.getAllDeclaredFields(type.getArrayElementType().getErasedType()),
+            extractSensitiveData(getAllDeclaredFields(type.getArrayElementType().getErasedType()),
                                  sensitiveDataList,
                                  buildCollectionPath(path));
         } else if (hasTypeParameters(type)) {
             type.getTypeParameters()
                 .stream()
-                .filter(tp -> ReflectionUtils.shouldGoDeeper(tp.getErasedType()))
-                .forEach(tp -> extractSensitiveData(ReflectionUtils.getAllDeclaredFields(tp.getErasedType()),
+                .filter(tp -> shouldGoDeeper(tp.getErasedType()))
+                .forEach(tp -> extractSensitiveData(getAllDeclaredFields(tp.getErasedType()),
                                                     sensitiveDataList,
                                                     buildCollectionPath(path)));
         } else {
-            extractSensitiveData(ReflectionUtils.getAllDeclaredFields(type.getErasedType()), sensitiveDataList, path);
+            extractSensitiveData(getAllDeclaredFields(type.getErasedType()), sensitiveDataList, path);
         }
     }
 
@@ -232,29 +251,6 @@ public class MetamodelGenerator {
      */
     private boolean hasTypeParameters(ResolvedType type) {
         return !type.getTypeParameters().isEmpty();
-    }
-
-    /**
-     * Check if the given type is a Map and that we should check the inner types of its Value. Key is ignored.
-     *
-     * @param type Type which will be used to check if it is a Map or not.
-     * @return True or false, depending on the check.
-     */
-    private boolean isMap(ResolvedType type) {
-        return type.isInstanceOf(Map.class)
-                && type.getTypeParameters().size() == 2
-                && ReflectionUtils.shouldGoDeeper(type.getTypeParameters().get(1).getErasedType());
-    }
-
-    /**
-     * Check if the given type is an Array and that we should check the inner types of it.
-     *
-     * @param type Type which will be used to check if it is an Array or not.
-     * @return True or false, depending on the check.
-     */
-    private boolean isArray(ResolvedType type) {
-        return type.isArray()
-                && ReflectionUtils.shouldGoDeeper(type.getArrayElementType().getErasedType());
     }
 
     /**

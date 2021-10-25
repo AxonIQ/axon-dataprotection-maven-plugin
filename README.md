@@ -5,6 +5,8 @@
 
 Axon Data Protection Maven Plugin is a Maven Plugin responsible to generate the config file to be used on the Axon Server Plugin Data Protection module. The config is generated based on Annotated Classes (using the Axon Data Protection Config API Annotations) and the output is a Json file, which is one of the inputs for the Axon Server Data Protection Plugin.
 
+### POM file
+
 For having the properly Annotations scanned, the `axon-dataprotection-config-api` is needed, and you can configure it like so:
 ```xml
 <dependency>
@@ -16,11 +18,19 @@ For having the properly Annotations scanned, the `axon-dataprotection-config-api
 ```
 
 This Plugin is hooked into the `compile` phase of the Maven Lifecycle and has a goal named `generate`.
-The mandatory configuration is a `packages` list where you can specify all `package`s where the plugin should scan for Annotated Classes. The optional configuration is the `outputConfig` where you can specify the directory you want the output json to be created. By default, it creates a file named `axon-data-protection-config.json` on your `target` folder.
 
+### Configuration
+
+The mandatory configuration is a `packages` list where you can specify all `package`s where the plugin should scan for Annotated Classes.
+
+The optional configurations are:
+- `outputConfig` where you can specify the directory you want the output json to be created. By default, it creates a file named `axon-data-protection-config.json` on your `target` folder.
 > It has proven to be a good practice to make this json part of your git repository, so you can follow the evolving of your configuration as well as be notified (by git) when it changed to not forget to change it on the server.
+- `ignores` where you can specify which classes or packages should be ignored when scanning. This is useful when you have non-java types on your Events. When using this property you should also specify the given dependency as a plugin dependency.
 
-Basically, this is an example of what you need on your project:
+
+
+Basically, this is a complete example of what you need on your project:
 
 ```xml
 <plugins>
@@ -28,7 +38,7 @@ Basically, this is an example of what you need on your project:
     <plugin>
         <groupId>io.axoniq</groupId>
         <artifactId>axon-dataprotection-maven-plugin</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>${plugin.version}</version>
         <configuration>
             <!-- required -->
             <packages>
@@ -38,7 +48,20 @@ Basically, this is an example of what you need on your project:
             </packages>
             <!-- optional -->
             <outputConfig>output.json</outputConfig>
+            <!-- optional -->
+            <ignores>
+                <ignore>org.joda.time.*</ignore>
+                <ignore>org.joda.time.DurationFieldType</ignore>
+            </ignores>
         </configuration>
+        <!-- only needed in case you also use the `ignores` config -->
+        <dependencies>
+            <dependency>
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>${joda.version}</version>
+            </dependency>
+        </dependencies>
         <executions>
             <execution>
                 <goals>
