@@ -124,7 +124,6 @@ public abstract class ReflectionUtils {
         return clazz.isEnum();
     }
 
-
     /**
      * Extract the {@link Revision} value when the annotation is present.
      *

@@ -21,6 +21,9 @@ import com.fasterxml.classmate.ResolvedType;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Utility class used for type checks in general. It offers several methods for checking specifc types.
+ */
 public abstract class TypeDetector {
 
     /**
