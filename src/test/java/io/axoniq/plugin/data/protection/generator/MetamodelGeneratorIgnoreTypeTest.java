@@ -26,20 +26,20 @@ import org.junit.jupiter.api.*;
 
 import java.util.List;
 
-public class MetamodelGeneratorIgnoredTypeTest {
+public class MetamodelGeneratorIgnoreTypeTest {
 
     @Test
     void ignoreTypeClassTest() {
         MetamodelGenerator metamodelGenerator = new MetamodelGenerator(List.of(
-                "io.axoniq.plugin.data.protection.generator.MetamodelGeneratorIgnoredTypeTest$IgnoredType"));
+                "io.axoniq.plugin.data.protection.generator.MetamodelGeneratorIgnoreTypeTest$RecursiveType"));
 
         DataProtectionConfig expected = new DataProtectionConfig(
-                "io.axoniq.plugin.data.protection.generator.MetamodelGeneratorIgnoredTypeTest$IgnoredClassTest",
+                "io.axoniq.plugin.data.protection.generator.MetamodelGeneratorIgnoreTypeTest$RecursiveClassTest",
                 "",
                 new SubjectIdConfig("$.subjectId"),
                 new SensitiveDataConfig("$.ignoredType", "ignored"));
 
-        DataProtectionConfig result = metamodelGenerator.generateMetamodel(MetamodelGeneratorIgnoredTypeTest.IgnoredClassTest.class);
+        DataProtectionConfig result = metamodelGenerator.generateMetamodel(MetamodelGeneratorIgnoreTypeTest.RecursiveClassTest.class);
         Assertions.assertEquals(expected, result);
     }
 
@@ -49,27 +49,35 @@ public class MetamodelGeneratorIgnoredTypeTest {
                 "io.axoniq.plugin.data.protection.generator.*"));
 
         DataProtectionConfig expected = new DataProtectionConfig(
-                "io.axoniq.plugin.data.protection.generator.MetamodelGeneratorIgnoredTypeTest$IgnoredClassTest",
+                "io.axoniq.plugin.data.protection.generator.MetamodelGeneratorIgnoreTypeTest$RecursiveClassTest",
                 "",
                 new SubjectIdConfig("$.subjectId"),
                 new SensitiveDataConfig("$.ignoredType", "ignored"));
 
-        DataProtectionConfig result = metamodelGenerator.generateMetamodel(MetamodelGeneratorIgnoredTypeTest.IgnoredClassTest.class);
+        DataProtectionConfig result = metamodelGenerator.generateMetamodel(MetamodelGeneratorIgnoreTypeTest.RecursiveClassTest.class);
         Assertions.assertEquals(expected, result);
     }
 
+    @Test
+    void testRecursiveTypeThrowsStackOverflowError() {
+        MetamodelGenerator metamodelGenerator = new MetamodelGenerator();
+
+        Assertions.assertThrows(StackOverflowError.class,
+                                () -> metamodelGenerator.generateMetamodel(MetamodelGeneratorIgnoreTypeTest.RecursiveClassTest.class));
+    }
+
     @SensitiveDataHolder
-    static class IgnoredClassTest {
+    static class RecursiveClassTest {
 
         @SubjectId
         Integer subjectId;
 
         @SensitiveData(replacementValue = "ignored")
-        IgnoredType ignoredType;
+        RecursiveType ignoredType;
     }
 
-    static class IgnoredType {
+    static class RecursiveType {
 
-        IgnoredType recursiveTypeToBeIgnored;
+        RecursiveType recursiveTypeToBeIgnored;
     }
 }
