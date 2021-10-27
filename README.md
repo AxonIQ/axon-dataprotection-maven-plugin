@@ -24,9 +24,9 @@ This Plugin is hooked into the `compile` phase of the Maven Lifecycle and has a 
 The mandatory configuration is a `packages` list where you can specify all `package`s where the plugin should scan for Annotated Classes.
 
 The optional configurations are:
-- `outputConfig` where you can specify the directory you want the output json to be created. By default, it creates a file named `axon-data-protection-config.json` on your `target` folder.
+- `outputConfig` where you can specify the directory you want the output json to be created. By default, it creates a file named `axon-data-protection-config.json` in your `target` folder.
 > It has proven to be a good practice to make this json part of your git repository, so you can follow the evolving of your configuration as well as be notified (by git) when it changed to not forget to change it on the server.
-- `ignores` where you can specify which classes or packages should be ignored when scanning. This is useful when you have non-java types on your Events. When using this property you should also specify the given dependency as a plugin dependency.
+- `ignores` where you can specify which classes or packages should be ignored when scanning. This is useful when you use types in your Events that are not part of the standard Java library. When using this property you should also specify the given dependency as a plugin dependency.
 
 
 

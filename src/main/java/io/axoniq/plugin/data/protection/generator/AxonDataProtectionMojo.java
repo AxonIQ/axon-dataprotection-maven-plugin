@@ -67,7 +67,7 @@ public class AxonDataProtectionMojo extends AbstractMojo {
 
     /**
      * This property specify which class names or packages the plugin should ignore when looking for annotations. This
-     * is useful when your Events has an attribute with a non-standard java type. A clear example would be a Joda Time
+     * is useful when your Events have an attribute of a type that is not in the standard Java library. A clear example would be a Joda Time
      * attribute type. Examples would be `my.package.Class` or `my.package.*`.
      */
     @Parameter(property = "ignores")
