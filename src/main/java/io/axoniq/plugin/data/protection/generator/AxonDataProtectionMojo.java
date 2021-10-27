@@ -66,17 +66,26 @@ public class AxonDataProtectionMojo extends AbstractMojo {
     private File outputConfig;
 
     /**
+     * This property specify which class names or packages the plugin should ignore when looking for annotations. This
+     * is useful when your Events have an attribute of a type that is not in the standard Java library. A clear example would be a Joda Time
+     * attribute type. Examples would be `my.package.Class` or `my.package.*`.
+     */
+    @Parameter(property = "ignores")
+    private List<String> ignores;
+
+    /**
      * Single instance of the ObjectMapper.
      */
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * This is the method called by maven to start the plugin.
      */
     public void execute() throws MojoExecutionException {
         getLog().info(String.format("Starting metamodel generation for %s", packages));
+        getLog().info(String.format("Ignoring the following packages and classes: %s", ignores));
         addProjectClassesToPluginClasspath();
-        MetamodelGenerator generator = new MetamodelGenerator(getLog());
+        MetamodelGenerator generator = new MetamodelGenerator(getLog(), ignores);
         try {
             DataProtectionConfigList config = generator.generateMetamodel(packages);
             writeOutput(config);
