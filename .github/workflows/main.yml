@@ -21,7 +21,7 @@ jobs:
           distribution: 'adopt'
           java-version: 11
           cache: 'maven'
-          server-id: axoniq-nexus
+          server-id: sonatype
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
 
@@ -31,11 +31,14 @@ jobs:
           MAVEN_USERNAME: ${{ secrets.DEVBOT_GITHUB_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.DEVBOT_GITHUB_TOKEN }}
 
-      - name: Deploy to internal nexus
-        run: ./mvnw -B -U deploy -DskipTests=true
+      - name: Deploy to Sonatype
+        if: success()
+        run: |
+          ./mvnw -B -U -Possrh deploy -DskipTests=true
         env:
-          MAVEN_USERNAME: ${{ secrets.DEVBOT_GITHUB_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.DEVBOT_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MAVEN_USERNAME: ${{ secrets.SONATYPE_TOKEN_ID }}
+          MAVEN_PASSWORD: ${{ secrets.SONATYPE_TOKEN_PASS }}
 
       - name: Notify success to Slack
         if: success()
