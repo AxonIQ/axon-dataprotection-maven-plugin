@@ -105,7 +105,7 @@ public class MetamodelGenerator {
     }
 
     /**
-     * Start the generation of the metamodel based on the given {@param packages}.
+     * Start the generation of the metamodel based on the given {@code packages}.
      *
      * @param packages List of packages for look up for annotated classes.
      * @return A new instance of a {@link DataProtectionConfig}.
@@ -117,7 +117,7 @@ public class MetamodelGenerator {
     }
 
     /**
-     * Start the generation of the metamodel based on the given {@param pkg}.
+     * Start the generation of the metamodel based on the given {@code pkg}.
      *
      * @param pkg The package for look up for annotated classes.
      * @return A new instance of a {@link DataProtectionConfig}.

@@ -53,6 +53,7 @@ public abstract class TypeDetector {
      * Check if a given type should be ignored or not. For that it uses the full qualified class name to compare with a
      * given class name or package name with `.*`.
      *
+     * @param ignores List of classes that should be ignored.
      * @param clazz Class which will be used to check if it should be ignored or not.
      * @return True or false, depending on the check.
      */
