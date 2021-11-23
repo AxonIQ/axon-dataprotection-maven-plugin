@@ -1,5 +1,6 @@
 # Axon Data Protection Maven Plugin
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.axoniq/axon-dataprotection-maven-plugin/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.axoniq/axon-dataprotection-maven-plugin)
 [![Release](https://img.shields.io/github/release/AxonIQ/axon-dataprotection-maven-plugin.svg?style=flat-square)](https://github.com/AxonIQ/axon-dataprotection-maven-plugin/releases/latest)
 ![Build Status](https://github.com/AxonIQ/axon-dataprotection-maven-plugin/workflows/Axon%20Data%20Protection%20Maven%20Plugin/badge.svg?branch=master)
 
