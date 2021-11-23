@@ -12,7 +12,7 @@ For having the properly Annotations scanned, the `axon-dataprotection-config-api
 <dependency>
     <groupId>io.axoniq</groupId>
     <artifactId>axon-dataprotection-config-api</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
     <scope>compile</scope>
 </dependency>
 ```
