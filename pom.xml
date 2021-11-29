@@ -45,7 +45,7 @@
         <!-- Maven Plugin -->
         <maven-dependency-plugin.version>3.2.0</maven-dependency-plugin.version>
         <maven-plugin-plugin.version>3.6.1</maven-plugin-plugin.version>
-        <maven-plugin-annotations.version>3.6.1</maven-plugin-annotations.version>
+        <maven-plugin-annotations.version>3.6.2</maven-plugin-annotations.version>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <!-- Reflection -->
         <reflections.version>0.10.2</reflections.version>
