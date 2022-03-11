@@ -43,7 +43,7 @@
         <axon.version>4.5.8</axon.version>
         <dataprotection-config-api.version>1.0</dataprotection-config-api.version>
         <!-- Maven Plugin -->
-        <maven-dependency-plugin.version>3.2.0</maven-dependency-plugin.version>
+        <maven-dependency-plugin.version>3.3.0</maven-dependency-plugin.version>
         <maven-plugin-plugin.version>3.6.4</maven-plugin-plugin.version>
         <maven-plugin-annotations.version>3.6.4</maven-plugin-annotations.version>
         <maven-compiler-plugin.version>3.10.0</maven-compiler-plugin.version>
