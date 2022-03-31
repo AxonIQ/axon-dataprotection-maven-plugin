@@ -51,7 +51,7 @@
         <reflections.version>0.10.2</reflections.version>
         <classmate.version>1.5.1</classmate.version>
         <!-- Json -->
-        <jackson-databind.version>2.13.2.1</jackson-databind.version>
+        <jackson-databind.version>2.13.2.2</jackson-databind.version>
         <!-- tests -->
         <junit.jupiter.version>5.8.2</junit.jupiter.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
