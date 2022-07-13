@@ -40,7 +40,7 @@
         <maven.compiler.target>11</maven.compiler.target>
         <encoding>UTF-8</encoding>
         <!-- Axon -->
-        <axon.version>4.5.11</axon.version>
+        <axon.version>4.5.13</axon.version>
         <dataprotection-config-api.version>1.0</dataprotection-config-api.version>
         <!-- Maven Plugin -->
         <maven-dependency-plugin.version>3.3.0</maven-dependency-plugin.version>
