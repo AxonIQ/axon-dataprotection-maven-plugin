@@ -44,6 +44,7 @@
         <dataprotection-config-api.version>1.0</dataprotection-config-api.version>
         <!-- Maven Plugin -->
         <maven-dependency-plugin.version>3.3.0</maven-dependency-plugin.version>
+        <maven-deploy-plugin.version>3.0.0</maven-deploy-plugin.version>
         <maven-plugin-plugin.version>3.7.0</maven-plugin-plugin.version>
         <maven-plugin-annotations.version>3.7.0</maven-plugin-annotations.version>
         <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
@@ -51,7 +52,7 @@
         <reflections.version>0.10.2</reflections.version>
         <classmate.version>1.5.1</classmate.version>
         <!-- Json -->
-        <jackson-databind.version>2.13.3</jackson-databind.version>
+        <jackson-databind.version>2.14.0</jackson-databind.version>
         <!-- tests -->
         <junit.jupiter.version>5.9.1</junit.jupiter.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
@@ -191,7 +192,7 @@
             <!-- Deploy -->
             <plugin>
                 <artifactId>maven-deploy-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>${maven-deploy-plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
