@@ -46,7 +46,7 @@
         <maven-dependency-plugin.version>3.3.0</maven-dependency-plugin.version>
         <maven-deploy-plugin.version>3.0.0</maven-deploy-plugin.version>
         <maven-plugin-plugin.version>3.7.0</maven-plugin-plugin.version>
-        <maven-plugin-annotations.version>3.7.0</maven-plugin-annotations.version>
+        <maven-plugin-annotations.version>3.8.1</maven-plugin-annotations.version>
         <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
         <!-- Reflection -->
         <reflections.version>0.10.2</reflections.version>
